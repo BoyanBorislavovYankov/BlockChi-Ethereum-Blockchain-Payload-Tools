@@ -1,0 +1,19 @@
+{
+  "name": "blockchain-payload-tools",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "babel-node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Boyan Yankov",
+  "license": "ISC",
+  "dependencies": {
+    "web3": "^0.19.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/node": "^7.4.5"
+  }
+}
