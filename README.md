@@ -19,5 +19,17 @@ Install:
 cd Blockchain-Payload-Tools
 npm install
 
-And run:
-npm start
+To build for browser:
+npm run build
+
+To run in node.js:
+node index.js
+
+Examples:
+----------------------------
+
+For browser open the file: 
+index.html
+
+For node.js install and run: 
+node index.js
