@@ -1,0 +1,25 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Blockchain Payload Tools</title>
+    <script src="dist/bpteth.min.js"></script>
+  </head>
+  <body>
+    <script>
+      window.onload = function(){
+        let apiUrl = "https://ropsten.infura.io/bYMbua7UzyBarTHQzOOL";
+        
+        console.log('Starting Blockchain Payload Tools...');
+        
+        const bptEth = new BptEth(apiUrl);
+        
+        console.log('Getting transaction data...');
+        
+        let transactionHash = '0x8ae745faa259299245c54e478b4f1bdf4b025f7b29de102fd0331a3ab0405779';
+        let transactionPayload = bptEth.getTransactionPayload(transactionHash);
+        
+        console.log(transactionPayload.payloadAscii);
+      };
+    </script>
+  </body>
+</html>
