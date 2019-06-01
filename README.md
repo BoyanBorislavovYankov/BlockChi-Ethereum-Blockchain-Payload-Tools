@@ -1,7 +1,13 @@
 "# Blockchain-Payload-Tools" 
 ==================================================
 
-How to run locally
+How to use in a web app or a web site
+----------------------------
+
+Include the javascript file from the dist folder:
+<script src="dist/bpteth.min.js"></script>
+
+How to build
 ----------------------------
 
 Install node.js, npm and git.

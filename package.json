@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "babel-node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build-debug": "browserify src/bpteth.js --s BptEth > dist/bpteth.js",
+    "build-min": "browserify src/bpteth.js --s BptEth | uglifyjs -c > dist/bpteth.min.js",
+    "build": "npm run build-debug && npm run build-min"
   },
   "author": "Boyan Yankov",
   "license": "ISC",
@@ -14,6 +15,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.4.5",
-    "@babel/node": "^7.4.5"
+    "babelify": "^10.0.0",
+    "uglify-es": "^3.3.9"
   }
 }
