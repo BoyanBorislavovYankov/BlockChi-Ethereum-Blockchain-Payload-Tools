@@ -9,7 +9,7 @@
     "build": "npm run build-debug && npm run build-min"
   },
   "author": "Boyan Yankov",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "dependencies": {
     "web3": "^0.19.1"
   },
