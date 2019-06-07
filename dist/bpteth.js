@@ -16298,7 +16298,7 @@ BptEth.prototype.getTransactionPayload = function (transactionHash) {
     
   let result = {
     payloadHex: transaction.input,
-    payloadAscii: this.toAscii(transaction.input),
+    payloadAscii: this.toUtf8(transaction.input),
     transactionDetails: transaction,
   }
   
@@ -16306,11 +16306,11 @@ BptEth.prototype.getTransactionPayload = function (transactionHash) {
 };
 
 BptEth.prototype.toHex = function (data) {
-  return this.web3.toHex(data);
+  return this.web3.fromUtf8(data);
 };
 
-BptEth.prototype.toAscii = function (data) {
-  return this.web3.toAscii(data);
+BptEth.prototype.toUtf8 = function (data) {
+  return this.web3.toUtf8(data);
 };
 },{"web3":37}]},{},[88])(88)
 });
