@@ -1,6 +1,6 @@
 {
   "name": "blockchain-payload-tools",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -11,6 +11,7 @@
   "author": "Boyan Yankov",
   "license": "Apache-2.0",
   "dependencies": {
+    "fast-xml-parser": "^3.12.16",
     "web3": "^0.19.1"
   },
   "devDependencies": {

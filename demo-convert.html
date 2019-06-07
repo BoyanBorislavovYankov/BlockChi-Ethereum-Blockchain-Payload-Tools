@@ -12,52 +12,7 @@
     <div class="row">
       <h1>Blockchain Payload Tools Demo</h1>
     </div>
-    
-    <div class="row">  
-      <h2>Get transaction payload</h2>
-      <table class="table">
-        <tr>  
-          <th scope="row">Transaction hash <br />(put your Ethereum transaction hash here or test the example)</th>
-          <td><input type="text" name="transaction_hash" id="transaction_hash" value="0x8ae745faa259299245c54e478b4f1bdf4b025f7b29de102fd0331a3ab0405779" /></td>
-        </tr>
-        <tr>  
-          <th scope="row">Transaction data, text</th>
-          <td id="transaction_data"></td>
-        </tr>
-        <tr>  
-          <td colspan="2"><input type="submit" id="transaction_payload_button" value="Get data" /></td>
-        </tr>
-      </table>
-    </div>
-    <script>
-      document.getElementById('transaction_payload_button').addEventListener("click", function(event){
-        event.preventDefault()
         
-        //put your Ethereum HTTP API url here or test the example
-        let apiUrl = "https://ropsten.infura.io/";
-        
-        //get form data
-        let transactionHash = document.getElementById('transaction_hash').value;
-        
-        const bptEth = new BptEth(apiUrl);
-        
-        let transactionPayload = bptEth.getTransactionPayload(transactionHash);
-        
-        console.log(transactionPayload);
-        
-        document.getElementById('transaction_data').innerHTML = escapeHtmlEntities(transactionPayload.payloadAscii);        
-        
-      });
-      
-      function escapeHtmlEntities(rawStr){
-        let encodedStr = rawStr.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
-           return '&#'+i.charCodeAt(0)+';';
-        });
-        
-        return encodedStr;
-      }
-    </script>
-    
     <div class="row">  
       <h2>Text to hex converter</h2>
       <table class="table">
@@ -93,7 +48,7 @@
         let operationType = operationElement.options[operationElement.selectedIndex].value;
         
         //process data
-        const bptEth = new BptEth(null);
+        const bptEth = new BptEth();
         let operationOutput = '';
         if (operationType == 'toHex'){ 
           operationOutput = bptEth.toHex(operationInput);

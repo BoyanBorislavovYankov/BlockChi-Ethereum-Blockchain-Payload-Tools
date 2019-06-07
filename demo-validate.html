@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Blockchain Payload Tools</title>
+  <meta name="author" content="Boyan Yankov">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="dist/bpteth.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <h1>Blockchain Payload Tools Demo</h1>
+    </div>
+    
+    <div class="row">  
+      <h2>Validate XML (see console for output)</h2>
+    </div>
+    <script>
+      console.log('Starting Blockchain Payload Tools...');
+      
+      const bptEth = new BptEth();
+      
+      let xmlValid = '<?xml version="1.0"?><comment><author>author</author><content>nothing</content></comment>';
+      let xmlInvalid = '<?xml version="1.0"?><comm>A comment</comment>';
+      
+      console.log('Trying with valid XML:');
+      let xmlValidationResult1 = bptEth.validateXml(xmlValid);
+      console.log(xmlValidationResult1);
+      
+      console.log('Trying with invalid XML:');
+      let xmlValidationResult2 = bptEth.validateXml(xmlInvalid);
+      console.log(xmlValidationResult2);
+    </script>
+    
+  </div>
+</body>
+</html>

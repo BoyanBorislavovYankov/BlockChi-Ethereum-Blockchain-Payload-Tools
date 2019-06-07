@@ -9342,6 +9342,1216 @@
 
 }));
 },{"./core":4}],36:[function(require,module,exports){
+'use strict';
+//parse Empty Node as self closing node
+const buildOptions = require('./util').buildOptions;
+
+const defaultOptions = {
+  attributeNamePrefix: '@_',
+  attrNodeName: false,
+  textNodeName: '#text',
+  ignoreAttributes: true,
+  cdataTagName: false,
+  cdataPositionChar: '\\c',
+  format: false,
+  indentBy: '  ',
+  supressEmptyNode: false,
+  tagValueProcessor: function(a) {
+    return a;
+  },
+  attrValueProcessor: function(a) {
+    return a;
+  },
+};
+
+const props = [
+  'attributeNamePrefix',
+  'attrNodeName',
+  'textNodeName',
+  'ignoreAttributes',
+  'cdataTagName',
+  'cdataPositionChar',
+  'format',
+  'indentBy',
+  'supressEmptyNode',
+  'tagValueProcessor',
+  'attrValueProcessor',
+];
+
+function Parser(options) {
+  this.options = buildOptions(options, defaultOptions, props);
+  if (this.options.ignoreAttributes || this.options.attrNodeName) {
+    this.isAttribute = function(/*a*/) {
+      return false;
+    };
+  } else {
+    this.attrPrefixLen = this.options.attributeNamePrefix.length;
+    this.isAttribute = isAttribute;
+  }
+  if (this.options.cdataTagName) {
+    this.isCDATA = isCDATA;
+  } else {
+    this.isCDATA = function(/*a*/) {
+      return false;
+    };
+  }
+  this.replaceCDATAstr = replaceCDATAstr;
+  this.replaceCDATAarr = replaceCDATAarr;
+
+  if (this.options.format) {
+    this.indentate = indentate;
+    this.tagEndChar = '>\n';
+    this.newLine = '\n';
+  } else {
+    this.indentate = function() {
+      return '';
+    };
+    this.tagEndChar = '>';
+    this.newLine = '';
+  }
+
+  if (this.options.supressEmptyNode) {
+    this.buildTextNode = buildEmptyTextNode;
+    this.buildObjNode = buildEmptyObjNode;
+  } else {
+    this.buildTextNode = buildTextValNode;
+    this.buildObjNode = buildObjectNode;
+  }
+
+  this.buildTextValNode = buildTextValNode;
+  this.buildObjectNode = buildObjectNode;
+}
+
+Parser.prototype.parse = function(jObj) {
+  return this.j2x(jObj, 0).val;
+};
+
+Parser.prototype.j2x = function(jObj, level) {
+  let attrStr = '';
+  let val = '';
+  const keys = Object.keys(jObj);
+  const len = keys.length;
+  for (let i = 0; i < len; i++) {
+    const key = keys[i];
+    if (typeof jObj[key] === 'undefined') {
+      // supress undefined node
+    } else if (jObj[key] === null) {
+      val += this.indentate(level) + '<' + key + '/' + this.tagEndChar;
+    } else if (typeof jObj[key] !== 'object') {
+      //premitive type
+      const attr = this.isAttribute(key);
+      if (attr) {
+        attrStr += ' ' + attr + '="' + this.options.attrValueProcessor('' + jObj[key]) + '"';
+      } else if (this.isCDATA(key)) {
+        if (jObj[this.options.textNodeName]) {
+          val += this.replaceCDATAstr(jObj[this.options.textNodeName], jObj[key]);
+        } else {
+          val += this.replaceCDATAstr('', jObj[key]);
+        }
+      } else {
+        //tag value
+        if (key === this.options.textNodeName) {
+          if (jObj[this.options.cdataTagName]) {
+            //value will added while processing cdata
+          } else {
+            val += this.options.tagValueProcessor('' + jObj[key]);
+          }
+        } else {
+          val += this.buildTextNode(jObj[key], key, '', level);
+        }
+      }
+    } else if (Array.isArray(jObj[key])) {
+      //repeated nodes
+      if (this.isCDATA(key)) {
+        val += this.indentate(level);
+        if (jObj[this.options.textNodeName]) {
+          val += this.replaceCDATAarr(jObj[this.options.textNodeName], jObj[key]);
+        } else {
+          val += this.replaceCDATAarr('', jObj[key]);
+        }
+      } else {
+        //nested nodes
+        const arrLen = jObj[key].length;
+        for (let j = 0; j < arrLen; j++) {
+          const item = jObj[key][j];
+          if (typeof item === 'undefined') {
+            // supress undefined node
+          } else if (item === null) {
+            val += this.indentate(level) + '<' + key + '/' + this.tagEndChar;
+          } else if (typeof item === 'object') {
+            const result = this.j2x(item, level + 1);
+            val += this.buildObjNode(result.val, key, result.attrStr, level);
+          } else {
+            val += this.buildTextNode(item, key, '', level);
+          }
+        }
+      }
+    } else {
+      //nested node
+      if (this.options.attrNodeName && key === this.options.attrNodeName) {
+        const Ks = Object.keys(jObj[key]);
+        const L = Ks.length;
+        for (let j = 0; j < L; j++) {
+          attrStr += ' ' + Ks[j] + '="' + this.options.attrValueProcessor('' + jObj[key][Ks[j]]) + '"';
+        }
+      } else {
+        const result = this.j2x(jObj[key], level + 1);
+        val += this.buildObjNode(result.val, key, result.attrStr, level);
+      }
+    }
+  }
+  return {attrStr: attrStr, val: val};
+};
+
+function replaceCDATAstr(str, cdata) {
+  str = this.options.tagValueProcessor('' + str);
+  if (this.options.cdataPositionChar === '' || str === '') {
+    return str + '<![CDATA[' + cdata + ']]' + this.tagEndChar;
+  } else {
+    return str.replace(this.options.cdataPositionChar, '<![CDATA[' + cdata + ']]' + this.tagEndChar);
+  }
+}
+
+function replaceCDATAarr(str, cdata) {
+  str = this.options.tagValueProcessor('' + str);
+  if (this.options.cdataPositionChar === '' || str === '') {
+    return str + '<![CDATA[' + cdata.join(']]><![CDATA[') + ']]' + this.tagEndChar;
+  } else {
+    for (let v in cdata) {
+      str = str.replace(this.options.cdataPositionChar, '<![CDATA[' + cdata[v] + ']]>');
+    }
+    return str + this.newLine;
+  }
+}
+
+function buildObjectNode(val, key, attrStr, level) {
+  if (attrStr && !val.includes('<')) {
+    return (
+      this.indentate(level) +
+      '<' +
+      key +
+      attrStr +
+      '>' +
+      val +
+      //+ this.newLine
+      // + this.indentate(level)
+      '</' +
+      key +
+      this.tagEndChar
+    );
+  } else {
+    return (
+      this.indentate(level) +
+      '<' +
+      key +
+      attrStr +
+      this.tagEndChar +
+      val +
+      //+ this.newLine
+      this.indentate(level) +
+      '</' +
+      key +
+      this.tagEndChar
+    );
+  }
+}
+
+function buildEmptyObjNode(val, key, attrStr, level) {
+  if (val !== '') {
+    return this.buildObjectNode(val, key, attrStr, level);
+  } else {
+    return this.indentate(level) + '<' + key + attrStr + '/' + this.tagEndChar;
+    //+ this.newLine
+  }
+}
+
+function buildTextValNode(val, key, attrStr, level) {
+  return (
+    this.indentate(level) +
+    '<' +
+    key +
+    attrStr +
+    '>' +
+    this.options.tagValueProcessor('' + val) +
+    '</' +
+    key +
+    this.tagEndChar
+  );
+}
+
+function buildEmptyTextNode(val, key, attrStr, level) {
+  if (val !== '') {
+    return this.buildTextValNode(val, key, attrStr, level);
+  } else {
+    return this.indentate(level) + '<' + key + attrStr + '/' + this.tagEndChar;
+  }
+}
+
+function indentate(level) {
+  return this.options.indentBy.repeat(level);
+}
+
+function isAttribute(name /*, options*/) {
+  if (name.startsWith(this.options.attributeNamePrefix)) {
+    return name.substr(this.attrPrefixLen);
+  } else {
+    return false;
+  }
+}
+
+function isCDATA(name) {
+  return name === this.options.cdataTagName;
+}
+
+//formatting
+//indentation
+//\n after each closing or self closing tag
+
+module.exports = Parser;
+
+},{"./util":41}],37:[function(require,module,exports){
+'use strict';
+const char = function(a) {
+  return String.fromCharCode(a);
+};
+
+const chars = {
+  nilChar: char(176),
+  missingChar: char(201),
+  nilPremitive: char(175),
+  missingPremitive: char(200),
+
+  emptyChar: char(178),
+  emptyValue: char(177), //empty Premitive
+
+  boundryChar: char(179),
+
+  objStart: char(198),
+  arrStart: char(204),
+  arrayEnd: char(185),
+};
+
+const charsArr = [
+  chars.nilChar,
+  chars.nilPremitive,
+  chars.missingChar,
+  chars.missingPremitive,
+  chars.boundryChar,
+  chars.emptyChar,
+  chars.emptyValue,
+  chars.arrayEnd,
+  chars.objStart,
+  chars.arrStart,
+];
+
+const _e = function(node, e_schema, options) {
+  if (typeof e_schema === 'string') {
+    //premitive
+    if (node && node[0] && node[0].val !== undefined) {
+      return getValue(node[0].val, e_schema);
+    } else {
+      return getValue(node, e_schema);
+    }
+  } else {
+    const hasValidData = hasData(node);
+    if (hasValidData === true) {
+      let str = '';
+      if (Array.isArray(e_schema)) {
+        //attributes can't be repeated. hence check in children tags only
+        str += chars.arrStart;
+        const itemSchema = e_schema[0];
+        //var itemSchemaType = itemSchema;
+        const arr_len = node.length;
+
+        if (typeof itemSchema === 'string') {
+          for (let arr_i = 0; arr_i < arr_len; arr_i++) {
+            const r = getValue(node[arr_i].val, itemSchema);
+            str = processValue(str, r);
+          }
+        } else {
+          for (let arr_i = 0; arr_i < arr_len; arr_i++) {
+            const r = _e(node[arr_i], itemSchema, options);
+            str = processValue(str, r);
+          }
+        }
+        str += chars.arrayEnd; //indicates that next item is not array item
+      } else {
+        //object
+        str += chars.objStart;
+        const keys = Object.keys(e_schema);
+        if (Array.isArray(node)) {
+          node = node[0];
+        }
+        for (let i in keys) {
+          const key = keys[i];
+          //a property defined in schema can be present either in attrsMap or children tags
+          //options.textNodeName will not present in both maps, take it's value from val
+          //options.attrNodeName will be present in attrsMap
+          let r;
+          if (!options.ignoreAttributes && node.attrsMap && node.attrsMap[key]) {
+            r = _e(node.attrsMap[key], e_schema[key], options);
+          } else if (key === options.textNodeName) {
+            r = _e(node.val, e_schema[key], options);
+          } else {
+            r = _e(node.child[key], e_schema[key], options);
+          }
+          str = processValue(str, r);
+        }
+      }
+      return str;
+    } else {
+      return hasValidData;
+    }
+  }
+};
+
+const getValue = function(a /*, type*/) {
+  switch (a) {
+    case undefined:
+      return chars.missingPremitive;
+    case null:
+      return chars.nilPremitive;
+    case '':
+      return chars.emptyValue;
+    default:
+      return a;
+  }
+};
+
+const processValue = function(str, r) {
+  if (!isAppChar(r[0]) && !isAppChar(str[str.length - 1])) {
+    str += chars.boundryChar;
+  }
+  return str + r;
+};
+
+const isAppChar = function(ch) {
+  return charsArr.indexOf(ch) !== -1;
+};
+
+function hasData(jObj) {
+  if (jObj === undefined) {
+    return chars.missingChar;
+  } else if (jObj === null) {
+    return chars.nilChar;
+  } else if (
+    jObj.child &&
+    Object.keys(jObj.child).length === 0 &&
+    (!jObj.attrsMap || Object.keys(jObj.attrsMap).length === 0)
+  ) {
+    return chars.emptyChar;
+  } else {
+    return true;
+  }
+}
+
+const x2j = require('./xmlstr2xmlnode');
+const buildOptions = require('./util').buildOptions;
+
+const convert2nimn = function(node, e_schema, options) {
+  options = buildOptions(options, x2j.defaultOptions, x2j.props);
+  return _e(node, e_schema, options);
+};
+
+exports.convert2nimn = convert2nimn;
+
+},{"./util":41,"./xmlstr2xmlnode":44}],38:[function(require,module,exports){
+'use strict';
+
+const util = require('./util');
+
+const convertToJson = function(node, options) {
+  const jObj = {};
+
+  //when no child node or attr is present
+  if ((!node.child || util.isEmptyObject(node.child)) && (!node.attrsMap || util.isEmptyObject(node.attrsMap))) {
+    return util.isExist(node.val) ? node.val : '';
+  } else {
+    //otherwise create a textnode if node has some text
+    if (util.isExist(node.val)) {
+      if (!(typeof node.val === 'string' && (node.val === '' || node.val === options.cdataPositionChar))) {
+        jObj[options.textNodeName] = node.val;
+      }
+    }
+  }
+
+  util.merge(jObj, node.attrsMap);
+
+  const keys = Object.keys(node.child);
+  for (let index = 0; index < keys.length; index++) {
+    var tagname = keys[index];
+    if (node.child[tagname] && node.child[tagname].length > 1) {
+      jObj[tagname] = [];
+      for (var tag in node.child[tagname]) {
+        jObj[tagname].push(convertToJson(node.child[tagname][tag], options));
+      }
+    } else {
+      jObj[tagname] = convertToJson(node.child[tagname][0], options);
+    }
+  }
+
+  //add value
+  return jObj;
+};
+
+exports.convertToJson = convertToJson;
+
+},{"./util":41}],39:[function(require,module,exports){
+'use strict';
+
+const util = require('./util');
+const buildOptions = require('./util').buildOptions;
+const x2j = require('./xmlstr2xmlnode');
+
+//TODO: do it later
+const convertToJsonString = function(node, options) {
+  options = buildOptions(options, x2j.defaultOptions, x2j.props);
+
+  options.indentBy = options.indentBy || '';
+  return _cToJsonStr(node, options, 0);
+};
+
+const _cToJsonStr = function(node, options, level) {
+  let jObj = '{';
+
+  //traver through all the children
+  const keys = Object.keys(node.child);
+
+  for (let index = 0; index < keys.length; index++) {
+    var tagname = keys[index];
+    if (node.child[tagname] && node.child[tagname].length > 1) {
+      jObj += '"' + tagname + '" : [ ';
+      for (var tag in node.child[tagname]) {
+        jObj += _cToJsonStr(node.child[tagname][tag], options) + ' , ';
+      }
+      jObj = jObj.substr(0, jObj.length - 1) + ' ] '; //remove extra comma in last
+    } else {
+      jObj += '"' + tagname + '" : ' + _cToJsonStr(node.child[tagname][0], options) + ' ,';
+    }
+  }
+  util.merge(jObj, node.attrsMap);
+  //add attrsMap as new children
+  if (util.isEmptyObject(jObj)) {
+    return util.isExist(node.val) ? node.val : '';
+  } else {
+    if (util.isExist(node.val)) {
+      if (!(typeof node.val === 'string' && (node.val === '' || node.val === options.cdataPositionChar))) {
+        jObj += '"' + options.textNodeName + '" : ' + stringval(node.val);
+      }
+    }
+  }
+  //add value
+  if (jObj[jObj.length - 1] === ',') {
+    jObj = jObj.substr(0, jObj.length - 2);
+  }
+  return jObj + '}';
+};
+
+function stringval(v) {
+  if (v === true || v === false || !isNaN(v)) {
+    return v;
+  } else {
+    return '"' + v + '"';
+  }
+}
+
+function indentate(options, level) {
+  return options.indentBy.repeat(level);
+}
+
+exports.convertToJsonString = convertToJsonString;
+
+},{"./util":41,"./xmlstr2xmlnode":44}],40:[function(require,module,exports){
+'use strict';
+
+const nodeToJson = require('./node2json');
+const xmlToNodeobj = require('./xmlstr2xmlnode');
+const x2xmlnode = require('./xmlstr2xmlnode');
+const buildOptions = require('./util').buildOptions;
+
+exports.parse = function(xmlData, options) {
+  options = buildOptions(options, x2xmlnode.defaultOptions, x2xmlnode.props);
+  return nodeToJson.convertToJson(xmlToNodeobj.getTraversalObj(xmlData, options), options);
+};
+exports.convertTonimn = require('../src/nimndata').convert2nimn;
+exports.getTraversalObj = xmlToNodeobj.getTraversalObj;
+exports.convertToJson = nodeToJson.convertToJson;
+exports.convertToJsonString = require('./node2json_str').convertToJsonString;
+exports.validate = require('./validator').validate;
+exports.j2xParser = require('./json2xml');
+exports.parseToNimn = function(xmlData, schema, options) {
+  return exports.convertTonimn(exports.getTraversalObj(xmlData, options), schema, options);
+};
+
+},{"../src/nimndata":37,"./json2xml":36,"./node2json":38,"./node2json_str":39,"./util":41,"./validator":42,"./xmlstr2xmlnode":44}],41:[function(require,module,exports){
+'use strict';
+
+const getAllMatches = function(string, regex) {
+  const matches = [];
+  let match = regex.exec(string);
+  while (match) {
+    const allmatches = [];
+    const len = match.length;
+    for (let index = 0; index < len; index++) {
+      allmatches.push(match[index]);
+    }
+    matches.push(allmatches);
+    match = regex.exec(string);
+  }
+  return matches;
+};
+
+const doesMatch = function(string, regex) {
+  const match = regex.exec(string);
+  return !(match === null || typeof match === 'undefined');
+};
+
+const doesNotMatch = function(string, regex) {
+  return !doesMatch(string, regex);
+};
+
+exports.isExist = function(v) {
+  return typeof v !== 'undefined';
+};
+
+exports.isEmptyObject = function(obj) {
+  return Object.keys(obj).length === 0;
+};
+
+/**
+ * Copy all the properties of a into b.
+ * @param {*} target
+ * @param {*} a
+ */
+exports.merge = function(target, a) {
+  if (a) {
+    const keys = Object.keys(a); // will return an array of own properties
+    const len = keys.length; //don't make it inline
+    for (let i = 0; i < len; i++) {
+      target[keys[i]] = a[keys[i]];
+    }
+  }
+};
+/* exports.merge =function (b,a){
+  return Object.assign(b,a);
+} */
+
+exports.getValue = function(v) {
+  if (exports.isExist(v)) {
+    return v;
+  } else {
+    return '';
+  }
+};
+
+// const fakeCall = function(a) {return a;};
+// const fakeCallNoReturn = function() {};
+
+exports.buildOptions = function(options, defaultOptions, props) {
+  var newOptions = {};
+  if (!options) {
+    return defaultOptions; //if there are not options
+  }
+
+  for (let i = 0; i < props.length; i++) {
+    if (options[props[i]] !== undefined) {
+      newOptions[props[i]] = options[props[i]];
+    } else {
+      newOptions[props[i]] = defaultOptions[props[i]];
+    }
+  }
+  return newOptions;
+};
+
+exports.doesMatch = doesMatch;
+exports.doesNotMatch = doesNotMatch;
+exports.getAllMatches = getAllMatches;
+
+},{}],42:[function(require,module,exports){
+'use strict';
+
+const util = require('./util');
+
+const defaultOptions = {
+  allowBooleanAttributes: false, //A tag can have attributes without any value
+  localeRange: 'a-zA-Z',
+};
+
+const props = ['allowBooleanAttributes', 'localeRange'];
+
+//const tagsPattern = new RegExp("<\\/?([\\w:\\-_\.]+)\\s*\/?>","g");
+exports.validate = function(xmlData, options) {
+  options = util.buildOptions(options, defaultOptions, props);
+
+  //xmlData = xmlData.replace(/(\r\n|\n|\r)/gm,"");//make it single line
+  //xmlData = xmlData.replace(/(^\s*<\?xml.*?\?>)/g,"");//Remove XML starting tag
+  //xmlData = xmlData.replace(/(<!DOCTYPE[\s\w\"\.\/\-\:]+(\[.*\])*\s*>)/g,"");//Remove DOCTYPE
+
+  const tags = [];
+  let tagFound = false;
+  if (xmlData[0] === '\ufeff') {
+    // check for byte order mark (BOM)
+    xmlData = xmlData.substr(1);
+  }
+  const regxAttrName = new RegExp('^[_w][\\w\\-.:]*$'.replace('_w', '_' + options.localeRange));
+  const regxTagName = new RegExp('^([w]|_)[\\w.\\-_:]*'.replace('([w', '([' + options.localeRange));
+  for (let i = 0; i < xmlData.length; i++) {
+    if (xmlData[i] === '<') {
+      //starting of tag
+      //read until you reach to '>' avoiding any '>' in attribute value
+
+      i++;
+      if (xmlData[i] === '?') {
+        i = readPI(xmlData, ++i);
+        if (i.err) {
+          return i;
+        }
+      } else if (xmlData[i] === '!') {
+        i = readCommentAndCDATA(xmlData, i);
+        continue;
+      } else {
+        let closingTag = false;
+        if (xmlData[i] === '/') {
+          //closing tag
+          closingTag = true;
+          i++;
+        }
+        //read tagname
+        let tagName = '';
+        for (; i < xmlData.length && xmlData[i] !== '>' && xmlData[i] !== ' ' && xmlData[i] !== '\t'; i++) {
+          tagName += xmlData[i];
+        }
+        tagName = tagName.trim();
+        //console.log(tagName);
+
+        if (tagName[tagName.length - 1] === '/') {
+          //self closing tag without attributes
+          tagName = tagName.substring(0, tagName.length - 1);
+          continue;
+        }
+        if (!validateTagName(tagName, regxTagName)) {
+          return {err: {code: 'InvalidTag', msg: 'Tag ' + tagName + ' is an invalid name.'}};
+        }
+
+        const result = readAttributeStr(xmlData, i);
+        if (result === false) {
+          return {err: {code: 'InvalidAttr', msg: 'Attributes for ' + tagName + ' have open quote'}};
+        }
+        let attrStr = result.value;
+        i = result.index;
+
+        if (attrStr[attrStr.length - 1] === '/') {
+          //self closing tag
+          attrStr = attrStr.substring(0, attrStr.length - 1);
+          const isValid = validateAttributeString(attrStr, options, regxAttrName);
+          if (isValid === true) {
+            tagFound = true;
+            //continue; //text may presents after self closing tag
+          } else {
+            return isValid;
+          }
+        } else if (closingTag) {
+          if (attrStr.trim().length > 0) {
+            return {
+              err: {code: 'InvalidTag', msg: 'closing tag ' + tagName + " can't have attributes or invalid starting."},
+            };
+          } else {
+            const otg = tags.pop();
+            if (tagName !== otg) {
+              return {
+                err: {code: 'InvalidTag', msg: 'closing tag ' + otg + ' is expected inplace of ' + tagName + '.'},
+              };
+            }
+          }
+        } else {
+          const isValid = validateAttributeString(attrStr, options, regxAttrName);
+          if (isValid !== true) {
+            return isValid;
+          }
+          tags.push(tagName);
+          tagFound = true;
+        }
+
+        //skip tag text value
+        //It may include comments and CDATA value
+        for (i++; i < xmlData.length; i++) {
+          if (xmlData[i] === '<') {
+            if (xmlData[i + 1] === '!') {
+              //comment or CADATA
+              i++;
+              i = readCommentAndCDATA(xmlData, i);
+              continue;
+            } else {
+              break;
+            }
+          }
+        } //end of reading tag text value
+        if (xmlData[i] === '<') {
+          i--;
+        }
+      }
+    } else {
+      if (xmlData[i] === ' ' || xmlData[i] === '\t' || xmlData[i] === '\n' || xmlData[i] === '\r') {
+        continue;
+      }
+      return {err: {code: 'InvalidChar', msg: 'char ' + xmlData[i] + ' is not expected .'}};
+    }
+  }
+
+  if (!tagFound) {
+    return {err: {code: 'InvalidXml', msg: 'Start tag expected.'}};
+  } else if (tags.length > 0) {
+    return {
+      err: {code: 'InvalidXml', msg: 'Invalid ' + JSON.stringify(tags, null, 4).replace(/\r?\n/g, '') + ' found.'},
+    };
+  }
+
+  return true;
+};
+
+/**
+ * Read Processing insstructions and skip
+ * @param {*} xmlData
+ * @param {*} i
+ */
+function readPI(xmlData, i) {
+  var start = i;
+  for (; i < xmlData.length; i++) {
+    if (xmlData[i] == '?' || xmlData[i] == ' ') {
+      //tagname
+      var tagname = xmlData.substr(start, i - start);
+      if (i > 5 && tagname === 'xml') {
+        return {err: {code: 'InvalidXml', msg: 'XML declaration allowed only at the start of the document.'}};
+      } else if (xmlData[i] == '?' && xmlData[i + 1] == '>') {
+        //check if valid attribut string
+        i++;
+        break;
+      } else {
+        continue;
+      }
+    }
+  }
+  return i;
+}
+
+function readCommentAndCDATA(xmlData, i) {
+  if (xmlData.length > i + 5 && xmlData[i + 1] === '-' && xmlData[i + 2] === '-') {
+    //comment
+    for (i += 3; i < xmlData.length; i++) {
+      if (xmlData[i] === '-' && xmlData[i + 1] === '-' && xmlData[i + 2] === '>') {
+        i += 2;
+        break;
+      }
+    }
+  } else if (
+    xmlData.length > i + 8 &&
+    xmlData[i + 1] === 'D' &&
+    xmlData[i + 2] === 'O' &&
+    xmlData[i + 3] === 'C' &&
+    xmlData[i + 4] === 'T' &&
+    xmlData[i + 5] === 'Y' &&
+    xmlData[i + 6] === 'P' &&
+    xmlData[i + 7] === 'E'
+  ) {
+    let angleBracketsCount = 1;
+    for (i += 8; i < xmlData.length; i++) {
+      if (xmlData[i] === '<') {
+        angleBracketsCount++;
+      } else if (xmlData[i] === '>') {
+        angleBracketsCount--;
+        if (angleBracketsCount === 0) {
+          break;
+        }
+      }
+    }
+  } else if (
+    xmlData.length > i + 9 &&
+    xmlData[i + 1] === '[' &&
+    xmlData[i + 2] === 'C' &&
+    xmlData[i + 3] === 'D' &&
+    xmlData[i + 4] === 'A' &&
+    xmlData[i + 5] === 'T' &&
+    xmlData[i + 6] === 'A' &&
+    xmlData[i + 7] === '['
+  ) {
+    for (i += 8; i < xmlData.length; i++) {
+      if (xmlData[i] === ']' && xmlData[i + 1] === ']' && xmlData[i + 2] === '>') {
+        i += 2;
+        break;
+      }
+    }
+  }
+
+  return i;
+}
+
+var doubleQuote = '"';
+var singleQuote = "'";
+
+/**
+ * Keep reading xmlData until '<' is found outside the attribute value.
+ * @param {string} xmlData
+ * @param {number} i
+ */
+function readAttributeStr(xmlData, i) {
+  let attrStr = '';
+  let startChar = '';
+  for (; i < xmlData.length; i++) {
+    if (xmlData[i] === doubleQuote || xmlData[i] === singleQuote) {
+      if (startChar === '') {
+        startChar = xmlData[i];
+      } else if (startChar !== xmlData[i]) {
+        //if vaue is enclosed with double quote then single quotes are allowed inside the value and vice versa
+        continue;
+      } else {
+        startChar = '';
+      }
+    } else if (xmlData[i] === '>') {
+      if (startChar === '') {
+        break;
+      }
+    }
+    attrStr += xmlData[i];
+  }
+  if (startChar !== '') {
+    return false;
+  }
+
+  return {value: attrStr, index: i};
+}
+
+/**
+ * Select all the attributes whether valid or invalid.
+ */
+const validAttrStrRegxp = new RegExp('(\\s*)([^\\s=]+)(\\s*=)?(\\s*([\'"])(([\\s\\S])*?)\\5)?', 'g');
+
+//attr, ="sd", a="amit's", a="sd"b="saf", ab  cd=""
+
+function validateAttributeString(attrStr, options, regxAttrName) {
+  //console.log("start:"+attrStr+":end");
+
+  //if(attrStr.trim().length === 0) return true; //empty string
+
+  const matches = util.getAllMatches(attrStr, validAttrStrRegxp);
+  const attrNames = {};
+
+  for (let i = 0; i < matches.length; i++) {
+    //console.log(matches[i]);
+
+    if (matches[i][1].length === 0) {
+      //nospace before attribute name: a="sd"b="saf"
+      return {err: {code: 'InvalidAttr', msg: 'attribute ' + matches[i][2] + ' has no space in starting.'}};
+    } else if (matches[i][3] === undefined && !options.allowBooleanAttributes) {
+      //independent attribute: ab
+      return {err: {code: 'InvalidAttr', msg: 'boolean attribute ' + matches[i][2] + ' is not allowed.'}};
+    }
+    /* else if(matches[i][6] === undefined){//attribute without value: ab=
+                    return { err: { code:"InvalidAttr",msg:"attribute " + matches[i][2] + " has no value assigned."}};
+                } */
+    const attrName = matches[i][2];
+    if (!validateAttrName(attrName, regxAttrName)) {
+      return {err: {code: 'InvalidAttr', msg: 'attribute ' + attrName + ' is an invalid name.'}};
+    }
+    if (!attrNames.hasOwnProperty(attrName)) {
+      //check for duplicate attribute.
+      attrNames[attrName] = 1;
+    } else {
+      return {err: {code: 'InvalidAttr', msg: 'attribute ' + attrName + ' is repeated.'}};
+    }
+  }
+
+  return true;
+}
+
+// const validAttrRegxp = /^[_a-zA-Z][\w\-.:]*$/;
+
+function validateAttrName(attrName, regxAttrName) {
+  // const validAttrRegxp = new RegExp(regxAttrName);
+  return util.doesMatch(attrName, regxAttrName);
+}
+
+//const startsWithXML = new RegExp("^[Xx][Mm][Ll]");
+//  startsWith = /^([a-zA-Z]|_)[\w.\-_:]*/;
+
+function validateTagName(tagname, regxTagName) {
+  /*if(util.doesMatch(tagname,startsWithXML)) return false;
+    else*/
+  return !util.doesNotMatch(tagname, regxTagName);
+}
+
+},{"./util":41}],43:[function(require,module,exports){
+'use strict';
+
+module.exports = function(tagname, parent, val) {
+  this.tagname = tagname;
+  this.parent = parent;
+  this.child = {}; //child tags
+  this.attrsMap = {}; //attributes map
+  this.val = val; //text only
+  this.addChild = function(child) {
+    if (Array.isArray(this.child[child.tagname])) {
+      //already presents
+      this.child[child.tagname].push(child);
+    } else {
+      this.child[child.tagname] = [child];
+    }
+  };
+};
+
+},{}],44:[function(require,module,exports){
+'use strict';
+
+const util = require('./util');
+const buildOptions = require('./util').buildOptions;
+const xmlNode = require('./xmlNode');
+const TagType = {OPENING: 1, CLOSING: 2, SELF: 3, CDATA: 4};
+let regx =
+  '<((!\\[CDATA\\[([\\s\\S]*?)(]]>))|(([\\w:\\-._]*:)?([\\w:\\-._]+))([^>]*)>|((\\/)(([\\w:\\-._]*:)?([\\w:\\-._]+))\\s*>))([^<]*)';
+
+//const tagsRegx = new RegExp("<(\\/?[\\w:\\-\._]+)([^>]*)>(\\s*"+cdataRegx+")*([^<]+)?","g");
+//const tagsRegx = new RegExp("<(\\/?)((\\w*:)?([\\w:\\-\._]+))([^>]*)>([^<]*)("+cdataRegx+"([^<]*))*([^<]+)?","g");
+
+//polyfill
+if (!Number.parseInt && window.parseInt) {
+  Number.parseInt = window.parseInt;
+}
+if (!Number.parseFloat && window.parseFloat) {
+  Number.parseFloat = window.parseFloat;
+}
+
+const defaultOptions = {
+  attributeNamePrefix: '@_',
+  attrNodeName: false,
+  textNodeName: '#text',
+  ignoreAttributes: true,
+  ignoreNameSpace: false,
+  allowBooleanAttributes: false, //a tag can have attributes without any value
+  //ignoreRootElement : false,
+  parseNodeValue: true,
+  parseAttributeValue: false,
+  arrayMode: false,
+  trimValues: true, //Trim string values of tag and attributes
+  cdataTagName: false,
+  cdataPositionChar: '\\c',
+  localeRange: '',
+  tagValueProcessor: function(a) {
+    return a;
+  },
+  attrValueProcessor: function(a) {
+    return a;
+  },
+  stopNodes: []
+  //decodeStrict: false,
+};
+
+exports.defaultOptions = defaultOptions;
+
+const props = [
+  'attributeNamePrefix',
+  'attrNodeName',
+  'textNodeName',
+  'ignoreAttributes',
+  'ignoreNameSpace',
+  'allowBooleanAttributes',
+  'parseNodeValue',
+  'parseAttributeValue',
+  'arrayMode',
+  'trimValues',
+  'cdataTagName',
+  'cdataPositionChar',
+  'localeRange',
+  'tagValueProcessor',
+  'attrValueProcessor',
+  'parseTrueNumberOnly',
+  'stopNodes'
+];
+exports.props = props;
+
+const getTraversalObj = function(xmlData, options) {
+  options = buildOptions(options, defaultOptions, props);
+  //xmlData = xmlData.replace(/\r?\n/g, " ");//make it single line
+  xmlData = xmlData.replace(/<!--[\s\S]*?-->/g, ''); //Remove  comments
+
+  const xmlObj = new xmlNode('!xml');
+  let currentNode = xmlObj;
+
+  regx = regx.replace(/\[\\w/g, '[' + options.localeRange + '\\w');
+  const tagsRegx = new RegExp(regx, 'g');
+  let tag = tagsRegx.exec(xmlData);
+  let nextTag = tagsRegx.exec(xmlData);
+  while (tag) {
+    const tagType = checkForTagType(tag);
+
+    if (tagType === TagType.CLOSING) {
+      //add parsed data to parent node
+      if (currentNode.parent && tag[14]) {
+        currentNode.parent.val = util.getValue(currentNode.parent.val) + '' + processTagValue(tag[14], options);
+      }
+      if (options.stopNodes.length && options.stopNodes.includes(currentNode.tagname)) {
+        currentNode.child = []
+        if (currentNode.attrsMap == undefined) { currentNode.attrsMap = {}}
+        currentNode.val = xmlData.substr(currentNode.startIndex + 1, tag.index - currentNode.startIndex - 1)
+      }
+      currentNode = currentNode.parent;
+    } else if (tagType === TagType.CDATA) {
+      if (options.cdataTagName) {
+        //add cdata node
+        const childNode = new xmlNode(options.cdataTagName, currentNode, tag[3]);
+        childNode.attrsMap = buildAttributesMap(tag[8], options);
+        currentNode.addChild(childNode);
+        //for backtracking
+        currentNode.val = util.getValue(currentNode.val) + options.cdataPositionChar;
+        //add rest value to parent node
+        if (tag[14]) {
+          currentNode.val += processTagValue(tag[14], options);
+        }
+      } else {
+        currentNode.val = (currentNode.val || '') + (tag[3] || '') + processTagValue(tag[14], options);
+      }
+    } else if (tagType === TagType.SELF) {
+      if (currentNode && tag[14]) {
+        currentNode.val = util.getValue(currentNode.val) + '' + processTagValue(tag[14], options);
+      }
+
+      const childNode = new xmlNode(options.ignoreNameSpace ? tag[7] : tag[5], currentNode, '');
+      if (tag[8] && tag[8].length > 0) {
+        tag[8] = tag[8].substr(0, tag[8].length - 1);
+      }
+      childNode.attrsMap = buildAttributesMap(tag[8], options);
+      currentNode.addChild(childNode);
+    } else {
+      //TagType.OPENING
+      const childNode = new xmlNode(
+        options.ignoreNameSpace ? tag[7] : tag[5],
+        currentNode,
+        processTagValue(tag[14], options)
+      );
+      if (options.stopNodes.length && options.stopNodes.includes(childNode.tagname)) {
+        childNode.startIndex=tag.index + tag[1].length
+      }
+      childNode.attrsMap = buildAttributesMap(tag[8], options);
+      currentNode.addChild(childNode);
+      currentNode = childNode;
+    }
+
+    tag = nextTag;
+    nextTag = tagsRegx.exec(xmlData);
+  }
+
+  return xmlObj;
+};
+
+function processTagValue(val, options) {
+  if (val) {
+    if (options.trimValues) {
+      val = val.trim();
+    }
+    val = options.tagValueProcessor(val);
+    val = parseValue(val, options.parseNodeValue, options.parseTrueNumberOnly);
+  }
+
+  return val;
+}
+
+function checkForTagType(match) {
+  if (match[4] === ']]>') {
+    return TagType.CDATA;
+  } else if (match[10] === '/') {
+    return TagType.CLOSING;
+  } else if (typeof match[8] !== 'undefined' && match[8].substr(match[8].length - 1) === '/') {
+    return TagType.SELF;
+  } else {
+    return TagType.OPENING;
+  }
+}
+
+function resolveNameSpace(tagname, options) {
+  if (options.ignoreNameSpace) {
+    const tags = tagname.split(':');
+    const prefix = tagname.charAt(0) === '/' ? '/' : '';
+    if (tags[0] === 'xmlns') {
+      return '';
+    }
+    if (tags.length === 2) {
+      tagname = prefix + tags[1];
+    }
+  }
+  return tagname;
+}
+
+function parseValue(val, shouldParse, parseTrueNumberOnly) {
+  if (shouldParse && typeof val === 'string') {
+    let parsed;
+    if (val.trim() === '' || isNaN(val)) {
+      parsed = val === 'true' ? true : val === 'false' ? false : val;
+    } else {
+      if (val.indexOf('0x') !== -1) {
+        //support hexa decimal
+        parsed = Number.parseInt(val, 16);
+      } else if (val.indexOf('.') !== -1) {
+        parsed = Number.parseFloat(val);
+      } else {
+        parsed = Number.parseInt(val, 10);
+      }
+      if (parseTrueNumberOnly) {
+        parsed = String(parsed) === val ? parsed : val;
+      }
+    }
+    return parsed;
+  } else {
+    if (util.isExist(val)) {
+      return val;
+    } else {
+      return '';
+    }
+  }
+}
+
+//TODO: change regex to capture NS
+//const attrsRegx = new RegExp("([\\w\\-\\.\\:]+)\\s*=\\s*(['\"])((.|\n)*?)\\2","gm");
+const attrsRegx = new RegExp('([^\\s=]+)\\s*(=\\s*([\'"])(.*?)\\3)?', 'g');
+
+function buildAttributesMap(attrStr, options) {
+  if (!options.ignoreAttributes && typeof attrStr === 'string') {
+    attrStr = attrStr.replace(/\r?\n/g, ' ');
+    //attrStr = attrStr || attrStr.trim();
+
+    const matches = util.getAllMatches(attrStr, attrsRegx);
+    const len = matches.length; //don't make it inline
+    const attrs = {};
+    for (let i = 0; i < len; i++) {
+      const attrName = resolveNameSpace(matches[i][1], options);
+      if (attrName.length) {
+        if (matches[i][4] !== undefined) {
+          if (options.trimValues) {
+            matches[i][4] = matches[i][4].trim();
+          }
+          matches[i][4] = options.attrValueProcessor(matches[i][4]);
+          attrs[options.attributeNamePrefix + attrName] = parseValue(
+            matches[i][4],
+            options.parseAttributeValue,
+            options.parseTrueNumberOnly
+          );
+        } else if (options.allowBooleanAttributes) {
+          attrs[options.attributeNamePrefix + attrName] = true;
+        }
+      }
+    }
+    if (!Object.keys(attrs).length) {
+      return;
+    }
+    if (options.attrNodeName) {
+      const attrCollection = {};
+      attrCollection[options.attrNodeName] = attrs;
+      return attrCollection;
+    }
+    return attrs;
+  }
+}
+
+exports.getTraversalObj = getTraversalObj;
+
+},{"./util":41,"./xmlNode":43}],45:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/utf8js v2.1.2 by @mathias */
 ;(function(root) {
@@ -9589,7 +10799,7 @@
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],37:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 var Web3 = require('./lib/web3');
 
 // dont override global variable
@@ -9599,7 +10809,7 @@ if (typeof window !== 'undefined' && typeof window.Web3 === 'undefined') {
 
 module.exports = Web3;
 
-},{"./lib/web3":59}],38:[function(require,module,exports){
+},{"./lib/web3":68}],47:[function(require,module,exports){
 module.exports=[
   {
     "constant": true,
@@ -9855,7 +11065,7 @@ module.exports=[
   }
 ]
 
-},{}],39:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 module.exports=[
   {
     "constant": true,
@@ -9965,7 +11175,7 @@ module.exports=[
   }
 ]
 
-},{}],40:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 module.exports=[
   {
     "constant": false,
@@ -10114,7 +11324,7 @@ module.exports=[
   }
 ]
 
-},{}],41:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 var f = require('./formatters');
 var SolidityType = require('./type');
 
@@ -10142,7 +11352,7 @@ SolidityTypeAddress.prototype.isType = function (name) {
 
 module.exports = SolidityTypeAddress;
 
-},{"./formatters":46,"./type":51}],42:[function(require,module,exports){
+},{"./formatters":55,"./type":60}],51:[function(require,module,exports){
 var f = require('./formatters');
 var SolidityType = require('./type');
 
@@ -10170,7 +11380,7 @@ SolidityTypeBool.prototype.isType = function (name) {
 
 module.exports = SolidityTypeBool;
 
-},{"./formatters":46,"./type":51}],43:[function(require,module,exports){
+},{"./formatters":55,"./type":60}],52:[function(require,module,exports){
 var f = require('./formatters');
 var SolidityType = require('./type');
 
@@ -10201,7 +11411,7 @@ SolidityTypeBytes.prototype.isType = function (name) {
 
 module.exports = SolidityTypeBytes;
 
-},{"./formatters":46,"./type":51}],44:[function(require,module,exports){
+},{"./formatters":55,"./type":60}],53:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -10466,7 +11676,7 @@ var coder = new SolidityCoder([
 
 module.exports = coder;
 
-},{"./address":41,"./bool":42,"./bytes":43,"./dynamicbytes":45,"./formatters":46,"./int":47,"./real":49,"./string":50,"./uint":52,"./ureal":53}],45:[function(require,module,exports){
+},{"./address":50,"./bool":51,"./bytes":52,"./dynamicbytes":54,"./formatters":55,"./int":56,"./real":58,"./string":59,"./uint":61,"./ureal":62}],54:[function(require,module,exports){
 var f = require('./formatters');
 var SolidityType = require('./type');
 
@@ -10488,7 +11698,7 @@ SolidityTypeDynamicBytes.prototype.isDynamicType = function () {
 
 module.exports = SolidityTypeDynamicBytes;
 
-},{"./formatters":46,"./type":51}],46:[function(require,module,exports){
+},{"./formatters":55,"./type":60}],55:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -10742,7 +11952,7 @@ module.exports = {
     formatOutputAddress: formatOutputAddress
 };
 
-},{"../utils/config":55,"../utils/utils":57,"./param":48,"bignumber.js":1}],47:[function(require,module,exports){
+},{"../utils/config":64,"../utils/utils":66,"./param":57,"bignumber.js":1}],56:[function(require,module,exports){
 var f = require('./formatters');
 var SolidityType = require('./type');
 
@@ -10776,7 +11986,7 @@ SolidityTypeInt.prototype.isType = function (name) {
 
 module.exports = SolidityTypeInt;
 
-},{"./formatters":46,"./type":51}],48:[function(require,module,exports){
+},{"./formatters":55,"./type":60}],57:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -10930,7 +12140,7 @@ SolidityParam.encodeList = function (params) {
 module.exports = SolidityParam;
 
 
-},{"../utils/utils":57}],49:[function(require,module,exports){
+},{"../utils/utils":66}],58:[function(require,module,exports){
 var f = require('./formatters');
 var SolidityType = require('./type');
 
@@ -10964,7 +12174,7 @@ SolidityTypeReal.prototype.isType = function (name) {
 
 module.exports = SolidityTypeReal;
 
-},{"./formatters":46,"./type":51}],50:[function(require,module,exports){
+},{"./formatters":55,"./type":60}],59:[function(require,module,exports){
 var f = require('./formatters');
 var SolidityType = require('./type');
 
@@ -10986,7 +12196,7 @@ SolidityTypeString.prototype.isDynamicType = function () {
 
 module.exports = SolidityTypeString;
 
-},{"./formatters":46,"./type":51}],51:[function(require,module,exports){
+},{"./formatters":55,"./type":60}],60:[function(require,module,exports){
 var f = require('./formatters');
 var SolidityParam = require('./param');
 
@@ -11243,7 +12453,7 @@ SolidityType.prototype.decode = function (bytes, offset, name) {
 
 module.exports = SolidityType;
 
-},{"./formatters":46,"./param":48}],52:[function(require,module,exports){
+},{"./formatters":55,"./param":57}],61:[function(require,module,exports){
 var f = require('./formatters');
 var SolidityType = require('./type');
 
@@ -11277,7 +12487,7 @@ SolidityTypeUInt.prototype.isType = function (name) {
 
 module.exports = SolidityTypeUInt;
 
-},{"./formatters":46,"./type":51}],53:[function(require,module,exports){
+},{"./formatters":55,"./type":60}],62:[function(require,module,exports){
 var f = require('./formatters');
 var SolidityType = require('./type');
 
@@ -11311,7 +12521,7 @@ SolidityTypeUReal.prototype.isType = function (name) {
 
 module.exports = SolidityTypeUReal;
 
-},{"./formatters":46,"./type":51}],54:[function(require,module,exports){
+},{"./formatters":55,"./type":60}],63:[function(require,module,exports){
 'use strict';
 
 // go env doesn't have and need XMLHttpRequest
@@ -11322,7 +12532,7 @@ if (typeof XMLHttpRequest === 'undefined') {
 }
 
 
-},{}],55:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -11403,7 +12613,7 @@ module.exports = {
 };
 
 
-},{"bignumber.js":1}],56:[function(require,module,exports){
+},{"bignumber.js":1}],65:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -11443,7 +12653,7 @@ module.exports = function (value, options) {
 };
 
 
-},{"crypto-js":10,"crypto-js/sha3":31}],57:[function(require,module,exports){
+},{"crypto-js":10,"crypto-js/sha3":31}],66:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -12074,12 +13284,12 @@ module.exports = {
     isTopic: isTopic,
 };
 
-},{"./sha3.js":56,"bignumber.js":1,"utf8":36}],58:[function(require,module,exports){
+},{"./sha3.js":65,"bignumber.js":1,"utf8":45}],67:[function(require,module,exports){
 module.exports={
     "version": "0.19.1"
 }
 
-},{}],59:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -12233,7 +13443,7 @@ Web3.prototype.createBatch = function () {
 module.exports = Web3;
 
 
-},{"./utils/sha3":56,"./utils/utils":57,"./version.json":58,"./web3/batch":61,"./web3/extend":65,"./web3/httpprovider":69,"./web3/iban":70,"./web3/ipcprovider":71,"./web3/methods/db":74,"./web3/methods/eth":75,"./web3/methods/net":76,"./web3/methods/personal":77,"./web3/methods/shh":78,"./web3/methods/swarm":79,"./web3/property":82,"./web3/requestmanager":83,"./web3/settings":84,"bignumber.js":1}],60:[function(require,module,exports){
+},{"./utils/sha3":65,"./utils/utils":66,"./version.json":67,"./web3/batch":70,"./web3/extend":74,"./web3/httpprovider":78,"./web3/iban":79,"./web3/ipcprovider":80,"./web3/methods/db":83,"./web3/methods/eth":84,"./web3/methods/net":85,"./web3/methods/personal":86,"./web3/methods/shh":87,"./web3/methods/swarm":88,"./web3/property":91,"./web3/requestmanager":92,"./web3/settings":93,"bignumber.js":1}],69:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -12323,7 +13533,7 @@ AllSolidityEvents.prototype.attachToContract = function (contract) {
 module.exports = AllSolidityEvents;
 
 
-},{"../utils/sha3":56,"../utils/utils":57,"./event":64,"./filter":66,"./formatters":67,"./methods/watches":80}],61:[function(require,module,exports){
+},{"../utils/sha3":65,"../utils/utils":66,"./event":73,"./filter":75,"./formatters":76,"./methods/watches":89}],70:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -12391,7 +13601,7 @@ Batch.prototype.execute = function () {
 module.exports = Batch;
 
 
-},{"./errors":63,"./jsonrpc":72}],62:[function(require,module,exports){
+},{"./errors":72,"./jsonrpc":81}],71:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -12703,7 +13913,7 @@ var Contract = function (eth, abi, address) {
 
 module.exports = ContractFactory;
 
-},{"../solidity/coder":44,"../utils/utils":57,"./allevents":60,"./event":64,"./function":68}],63:[function(require,module,exports){
+},{"../solidity/coder":53,"../utils/utils":66,"./allevents":69,"./event":73,"./function":77}],72:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -12748,7 +13958,7 @@ module.exports = {
     }
 };
 
-},{}],64:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -12958,7 +14168,7 @@ SolidityEvent.prototype.attachToContract = function (contract) {
 module.exports = SolidityEvent;
 
 
-},{"../solidity/coder":44,"../utils/sha3":56,"../utils/utils":57,"./filter":66,"./formatters":67,"./methods/watches":80}],65:[function(require,module,exports){
+},{"../solidity/coder":53,"../utils/sha3":65,"../utils/utils":66,"./filter":75,"./formatters":76,"./methods/watches":89}],74:[function(require,module,exports){
 var formatters = require('./formatters');
 var utils = require('./../utils/utils');
 var Method = require('./method');
@@ -13008,7 +14218,7 @@ var extend = function (web3) {
 module.exports = extend;
 
 
-},{"./../utils/utils":57,"./formatters":67,"./method":73,"./property":82}],66:[function(require,module,exports){
+},{"./../utils/utils":66,"./formatters":76,"./method":82,"./property":91}],75:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -13247,7 +14457,7 @@ Filter.prototype.get = function (callback) {
 module.exports = Filter;
 
 
-},{"../utils/utils":57,"./formatters":67}],67:[function(require,module,exports){
+},{"../utils/utils":66,"./formatters":76}],76:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -13552,7 +14762,7 @@ module.exports = {
 };
 
 
-},{"../utils/config":55,"../utils/utils":57,"./iban":70}],68:[function(require,module,exports){
+},{"../utils/config":64,"../utils/utils":66,"./iban":79}],77:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -13834,7 +15044,7 @@ SolidityFunction.prototype.attachToContract = function (contract) {
 
 module.exports = SolidityFunction;
 
-},{"../solidity/coder":44,"../utils/sha3":56,"../utils/utils":57,"./errors":63,"./formatters":67}],69:[function(require,module,exports){
+},{"../solidity/coder":53,"../utils/sha3":65,"../utils/utils":66,"./errors":72,"./formatters":76}],78:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -13989,7 +15199,7 @@ HttpProvider.prototype.isConnected = function() {
 
 module.exports = HttpProvider;
 
-},{"./errors":63,"xhr2":87,"xmlhttprequest":54}],70:[function(require,module,exports){
+},{"./errors":72,"xhr2":96,"xmlhttprequest":63}],79:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -14218,7 +15428,7 @@ Iban.prototype.toString = function () {
 module.exports = Iban;
 
 
-},{"bignumber.js":1}],71:[function(require,module,exports){
+},{"bignumber.js":1}],80:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -14427,7 +15637,7 @@ IpcProvider.prototype.sendAsync = function (payload, callback) {
 module.exports = IpcProvider;
 
 
-},{"../utils/utils":57,"./errors":63}],72:[function(require,module,exports){
+},{"../utils/utils":66,"./errors":72}],81:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -14514,7 +15724,7 @@ Jsonrpc.toBatchPayload = function (messages) {
 module.exports = Jsonrpc;
 
 
-},{}],73:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -14680,7 +15890,7 @@ Method.prototype.request = function () {
 
 module.exports = Method;
 
-},{"../utils/utils":57,"./errors":63}],74:[function(require,module,exports){
+},{"../utils/utils":66,"./errors":72}],83:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -14748,7 +15958,7 @@ var methods = function () {
 
 module.exports = DB;
 
-},{"../method":73}],75:[function(require,module,exports){
+},{"../method":82}],84:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -15104,7 +16314,7 @@ Eth.prototype.isSyncing = function (callback) {
 
 module.exports = Eth;
 
-},{"../../utils/config":55,"../../utils/utils":57,"../contract":62,"../filter":66,"../formatters":67,"../iban":70,"../method":73,"../namereg":81,"../property":82,"../syncing":85,"../transfer":86,"./watches":80}],76:[function(require,module,exports){
+},{"../../utils/config":64,"../../utils/utils":66,"../contract":71,"../filter":75,"../formatters":76,"../iban":79,"../method":82,"../namereg":90,"../property":91,"../syncing":94,"../transfer":95,"./watches":89}],85:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -15158,7 +16368,7 @@ var properties = function () {
 
 module.exports = Net;
 
-},{"../../utils/utils":57,"../property":82}],77:[function(require,module,exports){
+},{"../../utils/utils":66,"../property":91}],86:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -15275,7 +16485,7 @@ var properties = function () {
 
 module.exports = Personal;
 
-},{"../formatters":67,"../method":73,"../property":82}],78:[function(require,module,exports){
+},{"../formatters":76,"../method":82,"../property":91}],87:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -15363,7 +16573,7 @@ var methods = function () {
 module.exports = Shh;
 
 
-},{"../filter":66,"../formatters":67,"../method":73,"./watches":80}],79:[function(require,module,exports){
+},{"../filter":75,"../formatters":76,"../method":82,"./watches":89}],88:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -15510,7 +16720,7 @@ var properties = function () {
 
 module.exports = Swarm;
 
-},{"../method":73,"../property":82}],80:[function(require,module,exports){
+},{"../method":82,"../property":91}],89:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -15626,7 +16836,7 @@ module.exports = {
 };
 
 
-},{"../method":73}],81:[function(require,module,exports){
+},{"../method":82}],90:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -15667,7 +16877,7 @@ module.exports = {
 };
 
 
-},{"../contracts/GlobalRegistrar.json":38,"../contracts/ICAPRegistrar.json":39}],82:[function(require,module,exports){
+},{"../contracts/GlobalRegistrar.json":47,"../contracts/ICAPRegistrar.json":48}],91:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -15813,7 +17023,7 @@ Property.prototype.request = function () {
 module.exports = Property;
 
 
-},{"../utils/utils":57}],83:[function(require,module,exports){
+},{"../utils/utils":66}],92:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -16080,7 +17290,7 @@ RequestManager.prototype.poll = function () {
 module.exports = RequestManager;
 
 
-},{"../utils/config":55,"../utils/utils":57,"./errors":63,"./jsonrpc":72}],84:[function(require,module,exports){
+},{"../utils/config":64,"../utils/utils":66,"./errors":72,"./jsonrpc":81}],93:[function(require,module,exports){
 
 
 var Settings = function () {
@@ -16091,7 +17301,7 @@ var Settings = function () {
 module.exports = Settings;
 
 
-},{}],85:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -16186,7 +17396,7 @@ IsSyncing.prototype.stopWatching = function () {
 module.exports = IsSyncing;
 
 
-},{"../utils/utils":57,"./formatters":67}],86:[function(require,module,exports){
+},{"../utils/utils":66,"./formatters":76}],95:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -16280,17 +17490,26 @@ var deposit = function (eth, from, to, value, client, callback) {
 module.exports = transfer;
 
 
-},{"../contracts/SmartExchange.json":40,"./iban":70}],87:[function(require,module,exports){
+},{"../contracts/SmartExchange.json":49,"./iban":79}],96:[function(require,module,exports){
 module.exports = XMLHttpRequest;
 
-},{}],88:[function(require,module,exports){
-Web3 = require('web3');
+},{}],97:[function(require,module,exports){
+const Web3 = require('web3');
 
 module.exports = BptEth = function (apiUrl) {
-  this.apiUrl = apiUrl;
   
   this.web3 = new Web3();
-  this.web3.setProvider(new this.web3.providers.HttpProvider(apiUrl));
+  
+  this.parser = require('fast-xml-parser');
+  
+  this.apiUrl = apiUrl;
+  if (this.apiUrl){
+    this.setProvider(apiUrl);
+  }
+};
+
+BptEth.prototype.setProvider = function (apiUrl) {
+  return this.web3.setProvider(new this.web3.providers.HttpProvider(apiUrl));
 };
 
 BptEth.prototype.getTransactionPayload = function (transactionHash) {
@@ -16312,5 +17531,9 @@ BptEth.prototype.toHex = function (data) {
 BptEth.prototype.toUtf8 = function (data) {
   return this.web3.toUtf8(data);
 };
-},{"web3":37}]},{},[88])(88)
+
+BptEth.prototype.validateXml = function (xml) {
+  return this.parser.validate(xml);
+};
+},{"fast-xml-parser":40,"web3":46}]},{},[97])(97)
 });

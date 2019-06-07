@@ -13,7 +13,6 @@ const bptEth = new BptEth(apiUrl);
 
 console.log('Getting transaction data...');
 
-
 let transactionPayload = bptEth.getTransactionPayload(transactionHash);
 
 console.log(transactionPayload.payloadAscii);
