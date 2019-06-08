@@ -1,18 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:element name="document">
     <xs:complexType>
       <xs:sequence>
-        <xs:element type="xs:string" name="title"/>
-        <xs:element type="xs:string" name="description"/>
-        <xs:element type="xs:string" name="parent"/>
-        <xs:element type="xs:string" name="author"/>
+        <xs:element name="type" type="xs:normalizedString"/>
+        <xs:element name="title" type="xs:normalizedString"/>
+        <xs:element name="description" type="xs:string" />
+        <xs:element name="parent" type="xs:string" />
+        <xs:element name="author" type="xs:normalizedString"/>
+        <xs:element name="authorUri" type="xs:anyURI"/>
+        <xs:element name="validFrom" type="xs:dateTime"/>
+        <xs:element name="validUntil" type="xs:dateTime"/>
         <xs:element name="item">
           <xs:complexType>
             <xs:sequence>
-              <xs:element type="xs:string" name="title"/>
-              <xs:element type="xs:string" name="type"/>
-              <xs:element type="xs:string" name="data"/>
+              <xs:element name="title" type="xs:normalizedString" />
+              <xs:element name="type" type="xs:normalizedString" />
+              <xs:element name="dataBlob" type="xs:base64Binary" />
+              <xs:element name="dataHash" type="xs:string" />
+              <xs:element name="dataUri" type="xs:anyURI" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
