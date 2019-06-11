@@ -1,10 +1,10 @@
 const Web3 = require('web3');
+const Ajv = require('ajv');
 
 module.exports = BptEth = function (apiUrl) {
   
   this.web3 = new Web3();
-  
-  this.parser = require('fast-xml-parser');
+  this.ajv = new Ajv({schemaId: 'auto'});
   
   this.apiUrl = apiUrl;
   if (this.apiUrl){
@@ -36,6 +36,12 @@ BptEth.prototype.toUtf8 = function (data) {
   return this.web3.toUtf8(data);
 };
 
-BptEth.prototype.validateXml = function (xml) {
-  return this.parser.validate(xml);
+BptEth.prototype.validateJson = function (schema, data) {
+  let validate = this.ajv.compile(schema);
+  let valid = validate(data);
+  
+  return {
+    result: valid,
+    errors: validate.errors
+  };
 };

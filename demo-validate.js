@@ -1,17 +1,20 @@
 //this is an example for node.js
 const BptEth = require('./src/bpteth');
-
+const fs = require('fs');
+  
 console.log('Starting Blockchain Payload Tools...');
 
 const bptEth = new BptEth();
 
-let xmlValid = '<?xml version="1.0"?><comment><author>author</author><content>nothing</content></comment>';
-let xmlInvalid = '<?xml version="1.0"?><comm>A comment</comment>';
+console.log('Loading schema...');
+let schemaRawData = fs.readFileSync('./schemas/default-schema.json');  
+let schema = JSON.parse(schemaRawData);
 
-console.log('Trying with valid XML:');
-let xmlValidationResult1 = bptEth.validateXml(xmlValid);
-console.log(xmlValidationResult1);
+console.log('Loading data...');
+let dataRawData = fs.readFileSync('./schemas/sample-data.json');  
+let data = JSON.parse(dataRawData);
 
-console.log('Trying with invalid XML:');
-let xmlValidationResult2 = bptEth.validateXml(xmlInvalid);
-console.log(xmlValidationResult2);
+console.log('Validating JSON:');
+let validationResult = bptEth.validateJson(schema, data);
+console.log('Valudation result: ' + validationResult.result);
+console.log('Valudation errors: ' + validationResult.errors);

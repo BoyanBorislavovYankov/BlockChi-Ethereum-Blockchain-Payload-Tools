@@ -21,16 +21,23 @@
       
       const bptEth = new BptEth();
       
-      let xmlValid = '<?xml version="1.0"?><comment><author>author</author><content>nothing</content></comment>';
-      let xmlInvalid = '<?xml version="1.0"?><comm>A comment</comment>';
+      let schema = {  "definitions": {},  "$schema": "http://json-schema.org/draft-07/schema#",  "$id": "http://example.com/root.json",  "type": "object",  "title": "Blockchain Payload Tools JSON Schema",  "default": null,  "required": [  "title",  "items"  ],  "properties": {  "title": {  "type": "string",  "title": "The document title",  "default": "",  "examples": [  "The holy bible"  ],  "pattern": "^(.*)$"  },  "description": {  "type": "string",  "title": "The document description",  "default": "",  "examples": [  "Containing the Old and New Testaments"  ],  "pattern": "^(.*)$"  },  "parent": {  "type": "string",  "title": "The document parent - transaction hash",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  },  "author": {  "type": "string",  "title": "The document author",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  },  "authorUri": {  "type": "string",  "title": "The document author URI",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$",  "format": "uri"  },  "validFrom": {  "type": "string",  "title": "The document valid from",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$",  "format": "date-time"  },  "validUntil": {  "type": "string",  "title": "The document valid until",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$",  "format": "date-time"  },  "items": {  "type": "array",  "items": {  "type": "object",  "title": "item",  "properties": {  "title": {  "type": "string",  "title": "The item title",  "default": "",  "examples": [  "Genesis"  ],  "pattern": "^(.*)$"  },  "type": {  "type": "string",  "title": "The item type",  "default": "",  "examples": [  "text"  ],  "pattern": "^(.*)$"  },  "dataText": {  "type": "string",  "title": "The item data - text",  "default": "",  "examples": [  "God creates this earth and its heaven and all forms of life in six days—The creative acts of each day are described—God creates man, both male and female, in His own image—Man is given dominion over all things and is commanded to multiply and fill the earth."  ],  "pattern": "^(.*)$"  },  "dataBlob": {  "type": "string",  "title": "The item data - blob",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  },  "dataHash": {  "type": "string",  "title": "The item data - hash",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  },  "dataUri": {  "type": "string",  "title": "The item data - uri",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  }  }  }  }  } };
+      let data = {
+        "title": "The holy bible",
+        "items": [
+          {
+            "title": "Genesis",
+            "type": "text",
+            "dataText": "God creates this earth and its heaven and all forms of life in six days—The creative acts of each day are described—God creates man, both male and female, in His own image—Man is given dominion over all things and is commanded to multiply and fill the earth."
+          }
+        ],
+        "description": "Containing the Old and New Testaments"
+      };
       
-      console.log('Trying with valid XML:');
-      let xmlValidationResult1 = bptEth.validateXml(xmlValid);
-      console.log(xmlValidationResult1);
-      
-      console.log('Trying with invalid XML:');
-      let xmlValidationResult2 = bptEth.validateXml(xmlInvalid);
-      console.log(xmlValidationResult2);
+      console.log('Validating JSON:');
+      let validationResult = bptEth.validateJson(schema, data);
+      console.log('Valudation result: ' + validationResult.result);
+      console.log('Valudation errors: ' + validationResult.errors);
     </script>
     
   </div>
