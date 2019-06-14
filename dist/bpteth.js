@@ -23494,5 +23494,24 @@ BptEth.prototype.validateJson = function (schema, data) {
     errors: validate.errors
   };
 };
+
+BptEth.prototype.textToJson = function (data) {
+  let result = null;
+  let errors = null;
+  try {
+    result = JSON.parse(data);
+  } catch(e) {
+    errors = e; 
+  }
+
+  return {
+    result: result,
+    errors: errors
+  };
+}
+
+BptEth.prototype.jsonToText = function (data) {
+  return JSON.stringify(data);
+};
 },{"ajv":1,"web3":82}]},{},[133])(133)
 });

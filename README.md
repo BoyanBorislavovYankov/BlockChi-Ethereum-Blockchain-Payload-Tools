@@ -57,8 +57,7 @@ Examples:
 For browser - open the one of the files: 
 demo-convert.html
 demo-read.html
-demo-validate.html
 
 For node.js - install and run one of the demo files: 
+node demo-convert.html
 node demo-read.html
-node demo-validate.html

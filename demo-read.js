@@ -7,7 +7,7 @@ let apiUrl = "https://ropsten.infura.io/";
 //put your Ethereum transaction hash here or test the example
 let transactionHash = '0x8ae745faa259299245c54e478b4f1bdf4b025f7b29de102fd0331a3ab0405779';
         
-console.log('Starting Blockchain Payload Tools...');
+console.log('Blockchain Payload Tools Demo');
 
 const bptEth = new BptEth(apiUrl);
 

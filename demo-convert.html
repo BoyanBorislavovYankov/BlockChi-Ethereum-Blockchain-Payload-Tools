@@ -9,38 +9,36 @@
 </head>
 <body>
   <div class="container">
-    <div class="row">
-      <h1>Blockchain Payload Tools Demo</h1>
-    </div>
-        
-    <div class="row">  
-      <h2>Text to hex converter</h2>
-      <table class="table">
-        <tr>  
-          <th scope="row">Input</th>
-          <td><textarea name="input" id="input"></textarea></td>
-        </tr>
-        <tr>  
-          <th scope="row">Operation</th>
-          <td>
-            <select name="operation" id="operation">
-              <option value="toHex">Text to hex</option>
-              <option value="toUtf8">Hex to text</option>
-            </select>
-          </td>
-        </tr>
-        <tr>  
-          <th scope="row">Output</th>
-          <td><textarea name="output" id="output" disabled="disabled"></textarea></td>
-        </tr>
-        <tr>  
-          <td colspan="2"><input type="submit" id="text_to_hex_button" value="Convert" /></td>
-        </tr>
-      </table>
-    </div>
+    <h1>Blockchain Payload Tools Demo</h1>
+    <h2>Validate JSON payload and convert to hex</h2>
+    <p><strong>To store the document on blockchain, use the HEX value as transaction payload!</strong></p>
+    <form>
+      <div class="form-group">  
+        <label for="input">Input:</label>
+        <textarea name="input" id="input" class="form-control"></textarea> 
+      </div><!--.form-group-->
+      <div class="form-group">
+        <label for="operation">Operation:</label>
+        <select name="operation" id="operation">
+          <option value="toHex">Json to hex</option>
+          <option value="toUtf8">Hex to Json</option>
+        </select>
+      </div><!--.form-group-->
+      <div class="form-group">
+        <label for="output">Output:</label>
+        <textarea name="output" id="output" class="form-control" disabled="disabled"></textarea>
+      </div><!--.form-group-->
+      <input type="submit" id="json_to_hex_button" value="Convert" />
+    </form>
+    <div id="validation_result"></div>
     <script>
-      document.getElementById('text_to_hex_button').addEventListener("click", function(event){
+      document.getElementById('json_to_hex_button').addEventListener("click", function(event){
         event.preventDefault()
+        
+        const bptEth = new BptEth();
+        
+        //define schema
+        let schema = {  "definitions": {},  "$schema": "http://json-schema.org/draft-07/schema#",  "$id": "http://example.com/root.json",  "type": "object",  "title": "Blockchain Payload Tools JSON Schema",  "default": null,  "required": [  "title",  "items"  ],  "properties": {  "title": {  "type": "string",  "title": "The document title",  "default": "",  "examples": [  "The holy bible"  ],  "pattern": "^(.*)$"  },  "description": {  "type": "string",  "title": "The document description",  "default": "",  "examples": [  "Containing the Old and New Testaments"  ],  "pattern": "^(.*)$"  },  "parent": {  "type": "string",  "title": "The document parent - transaction hash",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  },  "author": {  "type": "string",  "title": "The document author",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  },  "authorUri": {  "type": "string",  "title": "The document author URI",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$",  "format": "uri"  },  "validFrom": {  "type": "string",  "title": "The document valid from",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$",  "format": "date-time"  },  "validUntil": {  "type": "string",  "title": "The document valid until",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$",  "format": "date-time"  },  "items": {  "type": "array",  "items": {  "type": "object",  "title": "item",  "properties": {  "title": {  "type": "string",  "title": "The item title",  "default": "",  "examples": [  "Genesis"  ],  "pattern": "^(.*)$"  },  "type": {  "type": "string",  "title": "The item type",  "default": "",  "examples": [  "text"  ],  "pattern": "^(.*)$"  },  "dataText": {  "type": "string",  "title": "The item data - text",  "default": "",  "examples": [  "God creates this earth and its heaven and all forms of life in six days—The creative acts of each day are described—God creates man, both male and female, in His own image—Man is given dominion over all things and is commanded to multiply and fill the earth."  ],  "pattern": "^(.*)$"  },  "dataBlob": {  "type": "string",  "title": "The item data - blob",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  },  "dataHash": {  "type": "string",  "title": "The item data - hash",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  },  "dataUri": {  "type": "string",  "title": "The item data - uri",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  }  }  }  }  } };
         
         //get form data
         let operationInput = document.getElementById('input').value;
@@ -48,12 +46,35 @@
         let operationType = operationElement.options[operationElement.selectedIndex].value;
         
         //process data
-        const bptEth = new BptEth();
         let operationOutput = '';
-        if (operationType == 'toHex'){ 
+        if (operationType == 'toHex'){
+          
+          //validate data
+          console.log('Validating JSON:');
+          let errorString = '';
+
+          let operationInputJson = bptEth.textToJson(operationInput);
+          
+          if (operationInputJson.result){
+            let validationResult = bptEth.validateJson(schema, operationInputJson.result);
+            
+            errorString += 'Validation result: '+validationResult.result+' ';  
+            if (validationResult.errors){ 
+              errorString += ' Validation errors: '+bptEth.jsonToText(validationResult.errors);
+            }
+          } else {
+            errorString += 'JSON errors: '+operationInputJson.errors;
+          }
+          document.getElementById('validation_result').innerHTML = errorString;
+
+          //convert data to hex
           operationOutput = bptEth.toHex(operationInput);
+          
         } else if (operationType == 'toUtf8'){
+          
           operationOutput = bptEth.toUtf8(operationInput);
+          document.getElementById('validation_result').innerHTML = '';
+          
         }
         
         document.getElementById('output').value = operationOutput;
