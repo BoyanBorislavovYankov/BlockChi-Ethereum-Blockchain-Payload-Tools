@@ -1,7 +1,11 @@
 "# Blockchain-Payload-Tools" 
 ==================================================
 
-BptEth (Blockchain Payload Tools - Ethereum) is an Ethreum implementation of a new approach to storing and retrieving data on blockchains that allows parties to author, to publish, to extend and to access data records in a secure, trusted manner. The data is presented as a JSON object, contained in the payload of a blockchain transaction, thus ensuring human readability and interoperability.
+BptEth (Blockchain Payload Tools - Ethereum) is an Ethreum implementation of technology for storing and retrieving data on blockchains. It allows parties to author, to publish, to extend and to access data records in a secure, trusted manner. The data is presented as a JSON object, contained in the payload of a blockchain transaction.
+
+Writting data to blockchain is done by: preparing the data as a JSON object, according to the provided schema, converting the JSON object to HEX and sending the transaction from the walltet with the HEX data as payload.
+
+Reading data from blockchain is done by: reading the tranasction and getting the payload, decoding the payload from HEX to JSON, parsing and displaying the data from the JSON.
 
 How to install  - for browser
 ----------------------------
