@@ -7,6 +7,11 @@ Writting data to blockchain is done by: preparing the data as a JSON object, acc
 
 Reading data from blockchain is done by: reading the tranasction and getting the payload, decoding the payload from HEX to JSON, parsing and displaying the data from the JSON.
 
+Demo:
+----------------------------
+
+Publisher portal: http://satoshijournal.com/
+
 How to install  - for browser
 ----------------------------
 
