@@ -5,7 +5,7 @@ const BptEth = require('./src/bpteth');
 let apiUrl = "https://ropsten.infura.io/";
 
 //put your Ethereum transaction hash here or test the example
-let transactionHash = '0x8ae745faa259299245c54e478b4f1bdf4b025f7b29de102fd0331a3ab0405779';
+let transactionHash = '0x512e6d93aeb2d8a3884270b37f574e4bdd2c2f29d86af335aee0a7c469b281e7';
         
 console.log('Blockchain Payload Tools Demo');
 
@@ -15,4 +15,13 @@ console.log('Getting transaction data...');
 
 let transactionPayload = bptEth.getTransactionPayload(transactionHash);
 
+console.log('Transaction data, raw (JSON / text):');
 console.log(transactionPayload.payloadAscii);
+
+let transactionPayloadObject = bptEth.textToJson(transactionPayload.payloadAscii);
+
+console.log('Transaction data, decoded:');
+console.log('Description: '+transactionPayloadObject.result.description);
+console.log('Item: '+transactionPayloadObject.result.items[0].type);
+console.log(transactionPayloadObject.result.items[0].title);
+console.log(transactionPayloadObject.result.items[0].dataText);

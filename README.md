@@ -58,10 +58,15 @@ const bptEth = new BptEth(apiUrl);
 Examples:
 ----------------------------
 
-For browser - open the one of the files: 
+For browser - open the one of the files:
+ 
 demo-convert.html
+
 demo-read.html
 
-For node.js - install and run one of the demo files: 
-node demo-convert.html
-node demo-read.html
+
+For node.js - install and run one of the demo files:
+ 
+node demo-convert.js
+
+node demo-read.js

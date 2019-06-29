@@ -18,11 +18,15 @@
       <table class="table">
         <tr>  
           <th scope="row">Transaction hash <br />(put your Ethereum transaction hash here or test the example)</th>
-          <td><input type="text" name="transaction_hash" id="transaction_hash" value="0x8ae745faa259299245c54e478b4f1bdf4b025f7b29de102fd0331a3ab0405779" /></td>
+          <td><input type="text" name="transaction_hash" id="transaction_hash" value="0x512e6d93aeb2d8a3884270b37f574e4bdd2c2f29d86af335aee0a7c469b281e7" /></td>
         </tr>
         <tr>  
-          <th scope="row">Transaction data, text</th>
+          <th scope="row">Transaction data, raw (JSON / text)</th>
           <td id="transaction_data"></td>
+        </tr>
+        <tr>  
+          <th scope="row">Transaction data, decoded</th>
+          <td id="transaction_data_decoded"></td>
         </tr>
         <tr>  
           <td colspan="2"><input type="submit" id="transaction_payload_button" value="Get data" /></td>
@@ -46,7 +50,15 @@
         console.log(transactionPayload);
         
         document.getElementById('transaction_data').innerHTML = escapeHtmlEntities(transactionPayload.payloadAscii);        
+
+        let transactionPayloadObject = bptEth.textToJson(transactionPayload.payloadAscii);
         
+        console.log(transactionPayloadObject);
+        
+        document.getElementById('transaction_data_decoded').innerHTML += '<strong>Description:</strong> '+transactionPayloadObject.result.description+'<br />';
+        document.getElementById('transaction_data_decoded').innerHTML += '<strong>Item:</strong> '+transactionPayloadObject.result.items[0].type+'<br />';
+        document.getElementById('transaction_data_decoded').innerHTML += transactionPayloadObject.result.items[0].title+'<br />';
+        document.getElementById('transaction_data_decoded').innerHTML += transactionPayloadObject.result.items[0].dataText+'<br />';        
       });
       
       function escapeHtmlEntities(rawStr){
