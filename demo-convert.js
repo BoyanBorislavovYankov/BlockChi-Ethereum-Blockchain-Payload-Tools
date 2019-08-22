@@ -1,16 +1,16 @@
 //this is an example for node.js
-const BptEth = require('./src/bpteth');
+const BlockChiEth = require('./src/blockchieth');
 const fs = require('fs');
   
-console.log('Blockchain Payload Tools Demo');
+console.log('BlockChi - Blockchain Payload Tools Demo');
 
 console.log('Validate JSON payload and convert to hex');
 
-const bptEth = new BptEth();
+const blockChiEth = new BlockChiEth();
 
 console.log('Loading schema...');
 let schemaRawData = fs.readFileSync('./schemas/default-schema.json', "utf8");  
-let schema = bptEth.textToJson(schemaRawData);
+let schema = blockChiEth.textToJson(schemaRawData);
 
 console.log('Loading data...');
 let operationInput = fs.readFileSync('./schemas/sample-data.json', "utf8");  
@@ -19,14 +19,14 @@ let operationInput = fs.readFileSync('./schemas/sample-data.json', "utf8");
 console.log('Validating JSON:');
 let errorString = '';
 
-let operationInputJson = bptEth.textToJson(operationInput);
+let operationInputJson = blockChiEth.textToJson(operationInput);
 
 if (operationInputJson.result){
-  let validationResult = bptEth.validateJson(schema, operationInputJson.result);
+  let validationResult = blockChiEth.validateJson(schema, operationInputJson.result);
   
   errorString += 'Validation result: '+validationResult.result+' ';  
   if (validationResult.errors){ 
-    errorString += ' Validation errors: '+bptEth.jsonToText(validationResult.errors);
+    errorString += ' Validation errors: '+blockChiEth.jsonToText(validationResult.errors);
   }
 } else {
   errorString += 'JSON errors: '+operationInputJson.errors;
@@ -35,7 +35,7 @@ console.log(errorString);
 
 //convert data to hex
 console.log('Converting to HEX:');
-let operationOutput = bptEth.toHex(operationInput);
+let operationOutput = blockChiEth.toHex(operationInput);
 console.log(operationOutput);
 
 console.log('To store the document on blockchain, use the HEX value as transaction payload!');

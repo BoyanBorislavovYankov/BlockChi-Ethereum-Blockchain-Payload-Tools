@@ -5,11 +5,11 @@
   <title>Blockchain Payload Tools</title>
   <meta name="author" content="Boyan Yankov">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  <script src="dist/bpteth.min.js"></script>
+  <script src="dist/blockchieth.min.js"></script>
 </head>
 <body>
   <div class="container">
-    <h1>Blockchain Payload Tools Demo</h1>
+    <h1>BlockChi - Blockchain Payload Tools Demo</h1>
     <h2>Validate JSON payload and convert to hex</h2>
     <p><strong>To store the document on blockchain, use the HEX value as transaction payload!</strong></p>
     <form>
@@ -35,10 +35,10 @@
       document.getElementById('json_to_hex_button').addEventListener("click", function(event){
         event.preventDefault()
         
-        const bptEth = new BptEth();
+        const blockChiEth = new BlockChiEth();
         
         //define schema
-        let schema = {  "definitions": {},  "$schema": "http://json-schema.org/draft-07/schema#",  "$id": "http://example.com/root.json",  "type": "object",  "title": "Blockchain Payload Tools JSON Schema",  "default": null,  "required": [  "title",  "items"  ],  "properties": {  "title": {  "type": "string",  "title": "The document title",  "default": "",  "examples": [  "The holy bible"  ],  "pattern": "^(.*)$"  },  "description": {  "type": "string",  "title": "The document description",  "default": "",  "examples": [  "Containing the Old and New Testaments"  ],  "pattern": "^(.*)$"  },  "parent": {  "type": "string",  "title": "The document parent - transaction hash",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  },  "author": {  "type": "string",  "title": "The document author",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  },  "authorUri": {  "type": "string",  "title": "The document author URI",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$",  "format": "uri"  },  "validFrom": {  "type": "string",  "title": "The document valid from",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$",  "format": "date-time"  },  "validUntil": {  "type": "string",  "title": "The document valid until",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$",  "format": "date-time"  },  "items": {  "type": "array",  "items": {  "type": "object",  "title": "item",  "properties": {  "title": {  "type": "string",  "title": "The item title",  "default": "",  "examples": [  "Genesis"  ],  "pattern": "^(.*)$"  },  "type": {  "type": "string",  "title": "The item type",  "default": "",  "examples": [  "text"  ],  "pattern": "^(.*)$"  },  "dataText": {  "type": "string",  "title": "The item data - text",  "default": "",  "examples": [  "God creates this earth and its heaven and all forms of life in six days—The creative acts of each day are described—God creates man, both male and female, in His own image—Man is given dominion over all things and is commanded to multiply and fill the earth."  ],  "pattern": "^(.*)$"  },  "dataBlob": {  "type": "string",  "title": "The item data - blob",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  },  "dataHash": {  "type": "string",  "title": "The item data - hash",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  },  "dataUri": {  "type": "string",  "title": "The item data - uri",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  }  }  }  }  } };
+        let schema = {  "definitions": {},  "$schema": "http://json-schema.org/draft-07/schema#",  "$id": "http://example.com/root.json",  "type": "object",  "title": "BlockChi JSON Schema",  "default": null,  "required": [  "title",  "items"  ],  "properties": {  "title": {  "type": "string",  "title": "The document title",  "default": "",  "examples": [  "The holy bible"  ],  "pattern": "^(.*)$"  },  "description": {  "type": "string",  "title": "The document description",  "default": "",  "examples": [  "Containing the Old and New Testaments"  ],  "pattern": "^(.*)$"  },  "parent": {  "type": "string",  "title": "The document parent - transaction hash",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  },  "author": {  "type": "string",  "title": "The document author",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  },  "authorUri": {  "type": "string",  "title": "The document author URI",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$",  "format": "uri"  },  "validFrom": {  "type": "string",  "title": "The document valid from",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$",  "format": "date-time"  },  "validUntil": {  "type": "string",  "title": "The document valid until",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$",  "format": "date-time"  },  "items": {  "type": "array",  "items": {  "type": "object",  "title": "item",  "properties": {  "title": {  "type": "string",  "title": "The item title",  "default": "",  "examples": [  "Genesis"  ],  "pattern": "^(.*)$"  },  "contentType": {  "type": "string",  "title": "The item data content type (mime-type)",  "default": "text/plain",  "examples": [  "text/plain"  ],  "pattern": "^(.*)$"  },  "data": {  "type": "string",  "title": "The item data",  "default": "",  "examples": [  "God creates this earth and its heaven and all forms of life in six days—The creative acts of each day are described—God creates man, both male and female, in His own image—Man is given dominion over all things and is commanded to multiply and fill the earth."  ],  "pattern": "^(.*)$"  },  "dataUri": {  "type": "string",  "title": "URL where the data can be loaded from",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  },  "dataHash": {  "type": "string",  "title": "An md5 hash ot the item data, used for vaalidating the data",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  }  }  }  }  } };
         
         //get form data
         let operationInput = document.getElementById('input').value;
@@ -53,14 +53,14 @@
           console.log('Validating JSON:');
           let errorString = '';
 
-          let operationInputJson = bptEth.textToJson(operationInput);
+          let operationInputJson = blockChiEth.textToJson(operationInput);
           
           if (operationInputJson.result){
-            let validationResult = bptEth.validateJson(schema, operationInputJson.result);
+            let validationResult = blockChiEth.validateJson(schema, operationInputJson.result);
             
             errorString += 'Validation result: '+validationResult.result+' ';  
             if (validationResult.errors){ 
-              errorString += ' Validation errors: '+bptEth.jsonToText(validationResult.errors);
+              errorString += ' Validation errors: '+blockChiEth.jsonToText(validationResult.errors);
             }
           } else {
             errorString += 'JSON errors: '+operationInputJson.errors;
@@ -68,11 +68,11 @@
           document.getElementById('validation_result').innerHTML = errorString;
 
           //convert data to hex
-          operationOutput = bptEth.toHex(operationInput);
+          operationOutput = blockChiEth.toHex(operationInput);
           
         } else if (operationType == 'toUtf8'){
           
-          operationOutput = bptEth.toUtf8(operationInput);
+          operationOutput = blockChiEth.toUtf8(operationInput);
           document.getElementById('validation_result').innerHTML = '';
           
         }

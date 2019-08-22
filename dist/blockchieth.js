@@ -1,4 +1,4 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.BptEth = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.BlockChiEth = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 var asn1 = exports;
 
 asn1.bignum = require('bn.js');
@@ -45888,7 +45888,7 @@ module.exports = XMLHttpRequest;
 const Web3 = require('web3');
 const Ajv = require('ajv');
 
-module.exports = BptEth = function (apiUrl) {
+module.exports = BlockChiEth = function (apiUrl) {
   
   this.web3 = new Web3();
   this.ajv = new Ajv({schemaId: 'auto'});
@@ -45899,11 +45899,11 @@ module.exports = BptEth = function (apiUrl) {
   }
 };
 
-BptEth.prototype.setProvider = function (apiUrl) {
+BlockChiEth.prototype.setProvider = function (apiUrl) {
   return this.web3.setProvider(new this.web3.providers.HttpProvider(apiUrl));
 };
 
-BptEth.prototype.getTransactionPayload = function (transactionHash) {
+BlockChiEth.prototype.getTransactionPayload = function (transactionHash) {
   let transaction = this.web3.eth.getTransaction(transactionHash);
     
   let result = {
@@ -45915,15 +45915,15 @@ BptEth.prototype.getTransactionPayload = function (transactionHash) {
   return result;
 };
 
-BptEth.prototype.toHex = function (data) {
+BlockChiEth.prototype.toHex = function (data) {
   return this.web3.fromUtf8(data);
 };
 
-BptEth.prototype.toUtf8 = function (data) {
+BlockChiEth.prototype.toUtf8 = function (data) {
   return this.web3.toUtf8(data);
 };
 
-BptEth.prototype.validateJson = function (schema, data) {
+BlockChiEth.prototype.validateJson = function (schema, data) {
   let validate = this.ajv.compile(schema);
   let valid = validate(data);
   
@@ -45933,7 +45933,7 @@ BptEth.prototype.validateJson = function (schema, data) {
   };
 };
 
-BptEth.prototype.textToJson = function (data) {
+BlockChiEth.prototype.textToJson = function (data) {
   let result = null;
   let errors = null;
   try {
@@ -45948,7 +45948,7 @@ BptEth.prototype.textToJson = function (data) {
   };
 }
 
-BptEth.prototype.jsonToText = function (data) {
+BlockChiEth.prototype.jsonToText = function (data) {
   return JSON.stringify(data);
 };
 },{"ajv":155,"web3":236}]},{},[287])(287)

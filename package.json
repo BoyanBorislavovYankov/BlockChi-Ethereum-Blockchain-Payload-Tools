@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build-debug": "browserify src/bpteth.js --s BptEth > dist/bpteth.js",
-    "build-min": "browserify src/bpteth.js --s BptEth | uglifyjs -c > dist/bpteth.min.js",
+    "build-debug": "browserify src/blockchieth.js --s BlockChiEth > dist/blockchieth.js",
+    "build-min": "browserify src/blockchieth.js --s BlockChiEth | uglifyjs -c > dist/blockchieth.min.js",
     "build": "npm run build-debug && npm run build-min"
   },
   "author": "Boyan Yankov",

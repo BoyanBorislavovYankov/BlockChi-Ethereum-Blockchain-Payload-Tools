@@ -3,8 +3,8 @@
   "items": [
     {
       "title": "Genesis",
-      "type": "text",
-      "dataText": "God creates this earth and its heaven and all forms of life in six days—The creative acts of each day are described—God creates man, both male and female, in His own image—Man is given dominion over all things and is commanded to multiply and fill the earth."
+      "type": "text/plain",
+      "data": "God creates this earth and its heaven and all forms of life in six days—The creative acts of each day are described—God creates man, both male and female, in His own image—Man is given dominion over all things and is commanded to multiply and fill the earth."
     }
   ],
   "description": "Containing the Old and New Testaments"

@@ -5,12 +5,12 @@
   <title>Blockchain Payload Tools</title>
   <meta name="author" content="Boyan Yankov">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  <script src="dist/bpteth.min.js"></script>
+  <script src="dist/blockchieth.min.js"></script>
 </head>
 <body>
   <div class="container">
     <div class="row">
-      <h1>Blockchain Payload Tools Demo</h1>
+      <h1>BlockChi - Blockchain Payload Tools Demo</h1>
     </div>
     
     <div class="row">  
@@ -43,22 +43,22 @@
         //get form data
         let transactionHash = document.getElementById('transaction_hash').value;
         
-        const bptEth = new BptEth(apiUrl);
+        const blockChiEth = new BlockChiEth(apiUrl);
         
-        let transactionPayload = bptEth.getTransactionPayload(transactionHash);
+        let transactionPayload = blockChiEth.getTransactionPayload(transactionHash);
         
         console.log(transactionPayload);
         
         document.getElementById('transaction_data').innerHTML = escapeHtmlEntities(transactionPayload.payloadAscii);        
 
-        let transactionPayloadObject = bptEth.textToJson(transactionPayload.payloadAscii);
+        let transactionPayloadObject = blockChiEth.textToJson(transactionPayload.payloadAscii);
         
         console.log(transactionPayloadObject);
         
         document.getElementById('transaction_data_decoded').innerHTML += '<strong>Description:</strong> '+transactionPayloadObject.result.description+'<br />';
         document.getElementById('transaction_data_decoded').innerHTML += '<strong>Item:</strong> '+transactionPayloadObject.result.items[0].type+'<br />';
         document.getElementById('transaction_data_decoded').innerHTML += transactionPayloadObject.result.items[0].title+'<br />';
-        document.getElementById('transaction_data_decoded').innerHTML += transactionPayloadObject.result.items[0].dataText+'<br />';        
+        document.getElementById('transaction_data_decoded').innerHTML += transactionPayloadObject.result.items[0].data+'<br />';        
       });
       
       function escapeHtmlEntities(rawStr){

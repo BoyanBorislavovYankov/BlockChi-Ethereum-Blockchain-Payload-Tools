@@ -3,7 +3,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "http://example.com/root.json",
   "type": "object",
-  "title": "Blockchain Payload Tools JSON Schema",
+  "title": "BlockChi JSON Schema",
   "default": null,
   "required": [
     "title",
@@ -93,25 +93,25 @@
           },
           "type": {
             "type": "string",
-            "title": "The item type",
-            "default": "",
+            "title": "The item data content type (mime-type)",
+            "default": "text/plain",
             "examples": [
-              "text"
+              "text/plain"
             ],
             "pattern": "^(.*)$"
           },
-          "dataText": {
+          "data": {
             "type": "string",
-            "title": "The item data - text",
+            "title": "The item data",
             "default": "",
             "examples": [
               "God creates this earth and its heaven and all forms of life in six days—The creative acts of each day are described—God creates man, both male and female, in His own image—Man is given dominion over all things and is commanded to multiply and fill the earth."
             ],
             "pattern": "^(.*)$"
           },
-          "dataBlob": {
+          "dataUri": {
             "type": "string",
-            "title": "The item data - blob",
+            "title": "URL where the data can be loaded from",
             "default": "",
             "examples": [
               ""
@@ -120,16 +120,7 @@
           },
           "dataHash": {
             "type": "string",
-            "title": "The item data - hash",
-            "default": "",
-            "examples": [
-              ""
-            ],
-            "pattern": "^(.*)$"
-          },
-          "dataUri": {
-            "type": "string",
-            "title": "The item data - uri",
+            "title": "An md5 hash ot the item data, used for vaalidating the data",
             "default": "",
             "examples": [
               ""
