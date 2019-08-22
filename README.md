@@ -1,7 +1,7 @@
-"# Blockchain-Payload-Tools" 
+"# BlockChi Ethereum - Blockchain Payload Tools" 
 ==================================================
 
-BlockChiEth (Blockchain Payload Tools - Ethereum) is an Ethreum implementation of technology for storing and retrieving data on blockchains. It allows parties to author, to publish, to extend and to access data records in a secure, trusted manner. The data is presented as a JSON object, contained in the payload of a blockchain transaction.
+BlockChi Ethereum (Blockchain Payload Tools) is an Ethreum implementation of technology for storing and retrieving data on blockchains. It allows parties to author, to publish, to extend and to access data records in a secure, trusted manner. The data is presented as a JSON object, contained in the payload of a blockchain transaction.
 
 Writing data to blockchain is done by: preparing the data as a JSON object, according to the provided schema, converting the JSON object to HEX and sending the transaction from the wallet with the HEX data as payload.
 
