@@ -5,7 +5,7 @@ const BlockChiEth = require('./src/blockchieth');
 let apiUrl = "https://ropsten.infura.io/";
 
 //put your Ethereum transaction hash here or test the example
-let transactionHash = '0x512e6d93aeb2d8a3884270b37f574e4bdd2c2f29d86af335aee0a7c469b281e7';
+let transactionHash = '0xbbfd3771951f8d5ad628f7b5e17c47de589b6c62f4c02a53278e93320aba51d8';
         
 console.log('BlockChi - Blockchain Payload Tools Demo');
 
@@ -21,7 +21,18 @@ console.log(transactionPayload.payloadAscii);
 let transactionPayloadObject = blockChiEth.textToJson(transactionPayload.payloadAscii);
 
 console.log('Transaction data, decoded:');
+
+console.log('Title: '+transactionPayloadObject.result.title);
 console.log('Description: '+transactionPayloadObject.result.description);
-console.log('Item: '+transactionPayloadObject.result.items[0].type);
-console.log(transactionPayloadObject.result.items[0].title);
-console.log(transactionPayloadObject.result.items[0].data);
+console.log('Author: '+transactionPayloadObject.result.author);
+console.log('Network: '+apiUrl);
+console.log('Transaction: '+transactionHash);
+
+for (var itemNumber = 0; itemNumber < transactionPayloadObject.result.items.length; itemNumber++) {
+  console.log('Item title: '+transactionPayloadObject.result.items[itemNumber].title);
+  if (transactionPayloadObject.result.items[itemNumber].type === 'undefined' || transactionPayloadObject.result.items[itemNumber].type == '' || transactionPayloadObject.result.items[itemNumber].type == 'text/plain'){ 
+    console.log(transactionPayloadObject.result.items[itemNumber].data);
+  } else {
+    console.log('Error: data type '+transactionPayloadObject.result.items[itemNumber].type+'is not supported by the reader!</p>');
+  }            
+}
