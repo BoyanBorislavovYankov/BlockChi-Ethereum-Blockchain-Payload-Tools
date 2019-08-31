@@ -11,6 +11,8 @@ Demo:
 ----------------------------
 
 Blockchain publishing portal: http://satoshijournal.com/
+Publiched demo content: https://satoshijournal.com/the-gift-of-the-magi-read-on-blockchain/
+Editor, for preparing data to be written on the blockchain: https://satoshijournal.com/blockchi-editor/
 
 How to install  - for browser
 ----------------------------

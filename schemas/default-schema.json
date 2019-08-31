@@ -12,7 +12,7 @@
   "properties": {
     "title": {
       "type": "string",
-      "title": "The document title",
+      "title": "Document title",
       "default": "",
       "examples": [
         "The holy bible"
@@ -21,7 +21,7 @@
     },
     "description": {
       "type": "string",
-      "title": "The document description",
+      "title": "Document description",
       "default": "",
       "examples": [
         "Containing the Old and New Testaments"
@@ -30,7 +30,7 @@
     },
     "parent": {
       "type": "string",
-      "title": "The document parent - transaction hash",
+      "title": "Document parent, transaction hash",
       "default": "",
       "examples": [
         ""
@@ -39,16 +39,16 @@
     },
     "author": {
       "type": "string",
-      "title": "The document author",
+      "title": "Document author",
       "default": "",
       "examples": [
-        ""
+        "John Smith"
       ],
       "pattern": "^(.*)$"
     },
     "authorUri": {
       "type": "string",
-      "title": "The document author URI",
+      "title": "Document author URI",
       "default": "",
       "examples": [
         ""
@@ -58,7 +58,7 @@
     },
     "validFrom": {
       "type": "string",
-      "title": "The document valid from",
+      "title": "Document valid from, date",
       "default": "",
       "examples": [
         ""
@@ -68,7 +68,7 @@
     },
     "validUntil": {
       "type": "string",
-      "title": "The document valid until",
+      "title": "Document valid until, date",
       "default": "",
       "examples": [
         ""
@@ -84,25 +84,16 @@
         "properties": {
           "title": {
             "type": "string",
-            "title": "The item title",
+            "title": "Item title",
             "default": "",
             "examples": [
               "Genesis"
             ],
             "pattern": "^(.*)$"
           },
-          "type": {
-            "type": "string",
-            "title": "The item data content type (mime-type)",
-            "default": "text/plain",
-            "examples": [
-              "text/plain"
-            ],
-            "pattern": "^(.*)$"
-          },
           "data": {
             "type": "string",
-            "title": "The item data",
+            "title": "Item data, text",
             "default": "",
             "examples": [
               "God creates this earth and its heaven and all forms of life in six days—The creative acts of each day are described—God creates man, both male and female, in His own image—Man is given dominion over all things and is commanded to multiply and fill the earth."
@@ -111,7 +102,16 @@
           },
           "dataUri": {
             "type": "string",
-            "title": "URL where the data can be loaded from",
+            "title": "Item data, file in data URI format",
+            "default": "",
+            "pattern": "^(.*)$",
+            "media": {
+                "binaryEncoding": "base64"
+            }
+          },
+          "dataUriExternal": {
+            "type": "string",
+            "title": "Item data, external URL",
             "default": "",
             "examples": [
               ""
@@ -120,7 +120,7 @@
           },
           "dataHash": {
             "type": "string",
-            "title": "An md5 hash ot the item data, used for vaalidating the data",
+            "title": "Hash of item data, md5",
             "default": "",
             "examples": [
               ""
