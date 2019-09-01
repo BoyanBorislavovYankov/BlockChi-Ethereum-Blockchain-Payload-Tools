@@ -11,7 +11,9 @@ Demo:
 ----------------------------
 
 Blockchain publishing portal: http://satoshijournal.com/
-Publiched demo content: https://satoshijournal.com/the-gift-of-the-magi-read-on-blockchain/
+
+Published demo content: https://satoshijournal.com/the-gift-of-the-magi-read-on-blockchain/
+
 Editor, for preparing data to be written on the blockchain: https://satoshijournal.com/blockchi-editor/
 
 How to install  - for browser
@@ -65,15 +67,15 @@ const blockChiEth = new BlockChiEth(apiUrl);
 Examples:
 ----------------------------
 
-For browser - open the one of the files:
+For browser - open one of the files:
  
-demo-convert.html
+JSON editor with converter, for preparing data to be written on the blockchain: demo-editor.html
 
-demo-read.html
+Demo of reader: demo-read.html
 
 
 For node.js - install and run one of the demo files:
  
-node demo-convert.js
+Converter for preparing data to be written on the blockchain: node demo-convert.js
 
-node demo-read.js
+Demo of reader: node demo-read.js

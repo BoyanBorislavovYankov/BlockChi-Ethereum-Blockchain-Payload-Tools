@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Blockchain Payload Tools</title>
+  <meta name="author" content="Boyan Yankov">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="dist/blockchieth.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">        
+        <h1>BlockChi - JSON Editor Demo</h1>
+        
+        <div id="editor_holder"></div>
+        
+        <button id="submit">Generate transaction payload</button>
+        <br /><br />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12">
+        <h2>Result</h2>
+      </div>
+    </div>
+    
+    <div class="row">  
+      <div class="col-sm-12">
+        <div id="validation_result"></div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-lg-6">
+        <label for="output_text">Output JSON (human readable):</label>
+      </div>
+      
+      <div class="col-lg-6">
+        <textarea name="output_text" id="output_text" cols="60" rows="6" disabled="disabled"></textarea>
+      </div>
+    </div>
+      
+    <div class="row">
+      <div class="col-lg-6">
+        <label for="output_hex">Output HEX (for writing to Ethereum blockchain):</label>
+      </div>
+      
+      <div class="col-lg-6">
+        <textarea name="output_hex" id="output_hex" cols="60" rows="6" disabled="disabled"></textarea>
+      </div>
+    </div>
+
+    <script>
+      // Initialize the editor with a JSON schema
+      var schema = {  "definitions": {},  "$schema": "http://json-schema.org/draft-07/schema#",  "$id": "http://example.com/root.json",  "type": "object",  "title": "BlockChi JSON Schema",  "default": null,  "required": [  "title",  "items"  ],  "properties": {  "title": {  "type": "string",  "title": "Document title",  "default": "",  "examples": [  "The holy bible"  ],  "pattern": "^(.*)$"  },  "description": {  "type": "string",  "title": "Document description",  "default": "",  "examples": [  "Containing the Old and New Testaments"  ],  "pattern": "^(.*)$"  },  "parent": {  "type": "string",  "title": "Document parent, transaction hash",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  },  "author": {  "type": "string",  "title": "Document author",  "default": "",  "examples": [  "John Smith"  ],  "pattern": "^(.*)$"  },  "authorUri": {  "type": "string",  "title": "Document author URI",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$",  "format": "uri"  },  "validFrom": {  "type": "string",  "title": "Document valid from, date",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$",  "format": "date-time"  },  "validUntil": {  "type": "string",  "title": "Document valid until, date",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$",  "format": "date-time"  },  "items": {  "type": "array",  "items": {  "type": "object",  "title": "item",  "properties": {  "title": {  "type": "string",  "title": "Item title",  "default": "",  "examples": [  "Genesis"  ],  "pattern": "^(.*)$"  },  "data": {  "type": "string",  "title": "Item data, text",  "default": "",  "examples": [  "God creates this earth and its heaven and all forms of life in six days—The creative acts of each day are described—God creates man, both male and female, in His own image—Man is given dominion over all things and is commanded to multiply and fill the earth."  ],  "pattern": "^(.*)$"  },  "dataUri": {  "type": "string",  "title": "Item data, file in data URI format",  "default": "",  "pattern": "^(.*)$",  "media": {  "binaryEncoding": "base64"  }  },  "dataUriExternal": {  "type": "string",  "title": "Item data, external URL",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  },  "dataHash": {  "type": "string",  "title": "Hash of item data, md5",  "default": "",  "examples": [  ""  ],  "pattern": "^(.*)$"  }  }  }  }  } }; 
+      var editor = new JSONEditor(document.getElementById("editor_holder"),{
+        schema: schema,
+        disable_collapse: true,
+        disable_edit_json: true,
+        display_required_only: true,
+        theme: 'bootstrap4'  
+      });
+
+      document.getElementById("submit").addEventListener("click",function() {
+        const blockChiEth = new BlockChiEth();
+        
+        var outputValueObject = editor.getValue();
+        var outputValueText = blockChiEth.jsonToText(outputValueObject);
+        var outputValueHex =  blockChiEth.toHex(outputValueText);
+        
+        //validate json according to schema
+        var errorString = "";
+        if (outputValueObject){
+          let validationResult = blockChiEth.validateJson(schema, outputValueObject);
+          errorString += "Validation result: "+validationResult.result+" ";  
+          if (validationResult.errors){ 
+            errorString += " Validation errors: "+blockChiEth.jsonToText(validationResult.errors);
+          }
+        } else {
+          errorString += "JSON errors: "+operationInputJson.errors;
+        }
+        
+        //display result
+        document.getElementById("validation_result").innerHTML = errorString;
+        document.getElementById("output_text").innerHTML = outputValueText;
+        document.getElementById("output_hex").innerHTML = outputValueHex;    
+      });
+    </script>
+  </div>
+</body>
+</html>
