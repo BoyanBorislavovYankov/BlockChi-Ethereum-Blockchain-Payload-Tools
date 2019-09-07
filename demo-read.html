@@ -65,10 +65,10 @@
         resultHtml += '</p>';
         for (var itemNumber = 0; itemNumber < transactionPayloadObject.result.items.length; itemNumber++) {
             resultHtml += '<h2>'+transactionPayloadObject.result.items[itemNumber].title+'</h2>';
-            if (transactionPayloadObject.result.items[itemNumber].type === 'undefined' || transactionPayloadObject.result.items[itemNumber].type == '' || transactionPayloadObject.result.items[itemNumber].type == 'text/plain'){ 
+            if (transactionPayloadObject.result.items[itemNumber].type === undefined || transactionPayloadObject.result.items[itemNumber].type == '' || transactionPayloadObject.result.items[itemNumber].type == 'text/plain'){ 
               resultHtml += '<p>'+transactionPayloadObject.result.items[itemNumber].data+'</p>';
             } else {
-              resultHtml += '<p>Error: data type '+transactionPayloadObject.result.items[itemNumber].type+'is not supported by the reader!</p>';
+              resultHtml += '<p>Error: data type '+transactionPayloadObject.result.items[itemNumber].type+' is not supported by the reader!</p>';
             }            
         }
         

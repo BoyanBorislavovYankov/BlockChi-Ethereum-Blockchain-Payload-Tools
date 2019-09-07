@@ -30,9 +30,9 @@ console.log('Transaction: '+transactionHash);
 
 for (var itemNumber = 0; itemNumber < transactionPayloadObject.result.items.length; itemNumber++) {
   console.log('Item title: '+transactionPayloadObject.result.items[itemNumber].title);
-  if (transactionPayloadObject.result.items[itemNumber].type === 'undefined' || transactionPayloadObject.result.items[itemNumber].type == '' || transactionPayloadObject.result.items[itemNumber].type == 'text/plain'){ 
+  if (transactionPayloadObject.result.items[itemNumber].type === undefined || transactionPayloadObject.result.items[itemNumber].type == '' || transactionPayloadObject.result.items[itemNumber].type == 'text/plain'){ 
     console.log(transactionPayloadObject.result.items[itemNumber].data);
   } else {
-    console.log('Error: data type '+transactionPayloadObject.result.items[itemNumber].type+'is not supported by the reader!</p>');
+    console.log('Error: data type '+transactionPayloadObject.result.items[itemNumber].type+' is not supported by the reader!</p>');
   }            
 }
