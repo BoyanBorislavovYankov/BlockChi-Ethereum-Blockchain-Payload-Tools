@@ -43,10 +43,13 @@ How to install - for Node.js
 Install node.js, npm and git.
 
 Clone a copy of the git repo by running:
+
 git clone https://github.com/BoyanBorislavovYankov/Blockchain-Payload-Tools.git
 
 Install:
+
 cd Blockchain-Payload-Tools
+
 npm install
 
 Include the library:
@@ -69,13 +72,21 @@ Examples:
 
 For browser - open one of the files:
  
-JSON editor with converter, for preparing data to be written on the blockchain: demo-editor.html
+JSON editor with converter, for preparing data to be written on the blockchain: 
 
-Demo of reader: demo-read.html
+demo-editor.html
+
+Demo of reader: 
+
+demo-read.html
 
 
 For node.js - install and run one of the demo files:
  
-Converter for preparing data to be written on the blockchain: node demo-convert.js
+Demo of converter for preparing data to be written on the blockchain: 
 
-Demo of reader: node demo-read.js
+node demo-convert.js
+
+Demo of reader (command line arguments: network, transaction hash): 
+
+node demo-read.js https://ropsten.infura.io/ 0xbbfd3771951f8d5ad628f7b5e17c47de589b6c62f4c02a53278e93320aba51d8

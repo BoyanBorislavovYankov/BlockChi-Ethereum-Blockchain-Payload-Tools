@@ -1,13 +1,26 @@
+'use strict';
 //this is an example for node.js
+console.log('BlockChi - Blockchain Payload Tools Demo');
+
 const BlockChiEth = require('./src/blockchieth');
 
-//put your Ethereum HTTP API url here or test the example
-let apiUrl = "https://ropsten.infura.io/";
+for (let j = 0; j < process.argv.length; j++) {
+    console.log(j + ' -> ' + (process.argv[j]));
+}
 
-//put your Ethereum transaction hash here or test the example
-let transactionHash = '0x243b483b8f3aa0d22a732f1075eccfe499d4dd535d45a2c0858d560ffd2f6c83';
-        
-console.log('BlockChi - Blockchain Payload Tools Demo');
+//first argument - Ethereum HTTP API url here or test the example
+//default value
+  let apiUrl = "https://ropsten.infura.io/"
+if (process.argv[2] !== undefined){
+  let apiUrl = process.argv[2];
+}
+ 
+//second argument - Ethereum transaction hash here or test the exam
+//default value
+  let transactionHash = '0x243b483b8f3aa0d22a732f1075eccfe499d4dd535d45a2c0858d560ffd2f6c83';
+if (process.argv[3] !== undefined){
+  let transactionHash = process.argv[3];
+}
 
 const blockChiEth = new BlockChiEth(apiUrl);
 
