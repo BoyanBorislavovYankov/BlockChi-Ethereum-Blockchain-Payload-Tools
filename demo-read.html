@@ -21,6 +21,13 @@
           <td><input type="text" name="transaction_hash" id="transaction_hash" value="0xbbfd3771951f8d5ad628f7b5e17c47de589b6c62f4c02a53278e93320aba51d8" /></td>
         </tr>
         <tr>  
+          <th scope="row">Network API URL <br />(put your Ethereum HTTP API URL here or test the example)</th>
+          <td><input type="text" name="api_url" id="api_url" value="https://ropsten.infura.io/" /></td></td>
+        </tr>        
+        <tr>  
+          <td colspan="2"><input type="submit" id="transaction_payload_button" value="Get data" /></td>
+        </tr>
+        <tr>  
           <th scope="row">Transaction data, raw (JSON / text)</th>
           <td id="transaction_data"></td>
         </tr>
@@ -28,19 +35,14 @@
           <th scope="row">Transaction data, decoded</th>
           <td id="transaction_data_decoded"></td>
         </tr>
-        <tr>  
-          <td colspan="2"><input type="submit" id="transaction_payload_button" value="Get data" /></td>
-        </tr>
       </table>
     </div>
     <script>
       document.getElementById('transaction_payload_button').addEventListener("click", function(event){
         event.preventDefault()
-        
-        //put your Ethereum HTTP API url here or test the example
-        let apiUrl = "https://ropsten.infura.io/";
-        
+
         //get form data
+        let apiUrl = document.getElementById('api_url').value;
         let transactionHash = document.getElementById('transaction_hash').value;
         
         const blockChiEth = new BlockChiEth(apiUrl);
@@ -55,7 +57,7 @@
         
         console.log(transactionPayloadObject);
 
-        var resultHtml = '';
+        let resultHtml = '';
         resultHtml += '<h1>'+transactionPayloadObject.result.title+'</h1>';
         resultHtml += '<p>';
         resultHtml += '<strong>Description:</strong> '+transactionPayloadObject.result.description+'; ';
@@ -63,13 +65,26 @@
         resultHtml += '<strong>Network:</strong> '+apiUrl+'; ';
         resultHtml += '<strong>Transaction:</strong> '+transactionHash+'; ';
         resultHtml += '</p>';
-        for (var itemNumber = 0; itemNumber < transactionPayloadObject.result.items.length; itemNumber++) {
-            resultHtml += '<h2>'+transactionPayloadObject.result.items[itemNumber].title+'</h2>';
-            if (transactionPayloadObject.result.items[itemNumber].type === undefined || transactionPayloadObject.result.items[itemNumber].type == '' || transactionPayloadObject.result.items[itemNumber].type == 'text/plain'){ 
-              resultHtml += '<p>'+transactionPayloadObject.result.items[itemNumber].data+'</p>';
+        
+        for (let itemNumber = 0; itemNumber < transactionPayloadObject.result.items.length; itemNumber++) {
+          let item = transactionPayloadObject.result.items[itemNumber];
+              
+          resultHtml += '<h2>'+item.title+'</h2>';
+  
+          if (item.data !== undefined && item.data != ''){
+            resultHtml += '<p>'+item.data+'</p>';
+          }
+          
+          if (item.dataUri !== undefined && item.dataUri != ''){
+            let dataType = item.dataUri.split(';')[0];
+            let mimeType = dataType.split(':')[1];
+            
+            if (mimeType == 'image/png' || mimeType == 'image/jpeg'){
+              resultHtml += '<img src=\"'+item.dataUri+'\" alt=\"image\" />';
             } else {
-              resultHtml += '<p>Error: data type '+transactionPayloadObject.result.items[itemNumber].type+' is not supported by the reader!</p>';
-            }            
+              resultHtml += '<p>Error: data type '+mimeType+' is not supported by the reader!</p>';
+            }
+          }
         }
         
         document.getElementById('transaction_data_decoded').innerHTML = resultHtml;        
