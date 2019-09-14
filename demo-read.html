@@ -51,7 +51,7 @@
         
         console.log(transactionPayload);
         
-        document.getElementById('transaction_data').innerHTML = escapeHtmlEntities(transactionPayload.payloadAscii);        
+        document.getElementById('transaction_data').innerHTML = blockChiEth.escapeHtmlEntities(transactionPayload.payloadAscii);        
 
         let transactionPayloadObject = blockChiEth.textToJson(transactionPayload.payloadAscii);
         
@@ -89,14 +89,6 @@
         
         document.getElementById('transaction_data_decoded').innerHTML = resultHtml;        
       });
-      
-      function escapeHtmlEntities(rawStr){
-        let encodedStr = rawStr.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
-           return '&#'+i.charCodeAt(0)+';';
-        });
-        
-        return encodedStr;
-      }
     </script>
     
   </div>

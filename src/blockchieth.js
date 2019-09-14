@@ -64,3 +64,11 @@ BlockChiEth.prototype.textToJson = function (data) {
 BlockChiEth.prototype.jsonToText = function (data) {
   return JSON.stringify(data);
 };
+
+BlockChiEth.prototype.escapeHtmlEntities = function (rawStr) {
+  let encodedStr = rawStr.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+     return '&#'+i.charCodeAt(0)+';';
+  });
+  
+  return encodedStr;
+};
