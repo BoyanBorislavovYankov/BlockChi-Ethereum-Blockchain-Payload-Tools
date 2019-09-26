@@ -1,13 +1,7 @@
 "# BlockChi Ethereum - Blockchain Payload Tools" 
 ==================================================
 
-Visit the website of BlockChi Ethereum - Blockchain Payload Tools: https://boyanborislavovyankov.github.io/BlockChi-Ethereum-Blockchain-Payload-Tools/
-
-BlockChi Ethereum (Blockchain Payload Tools) is an Ethreum implementation of technology for storing and retrieving data on blockchains. It allows parties to author, to publish, to extend and to access data records in a secure, trusted manner. The data is presented as a JSON object, contained in the payload of a blockchain transaction.
-
-Writing data to blockchain is done by: preparing the data as a JSON object, according to the provided schema, converting the JSON object to HEX and sending the transaction from the wallet with the HEX data as payload.
-
-Reading data from blockchain is done by: reading the tranasction and getting the payload, decoding the payload from HEX to JSON, parsing and displaying the data from the JSON.
+Visit the website of BlockChi to learn more about the project: https://boyanborislavovyankov.github.io/BlockChi-Ethereum-Blockchain-Payload-Tools/
 
 Demo:
 ----------------------------
