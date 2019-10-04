@@ -1,104 +1,239 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>BlockChi Ethereum - Blockchain Payload Tools Website</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  </head>
-  <body>
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-md-12">
-          <h1>BlockChi Ethereum - Blockchain Payload Tools Website</h1>
-        </div>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="author" content="Boyan Yankov">
+  <title>BlockChi Ethereum - Blockchain Payload Tools</title>
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Custom fonts for this template -->
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+  <!-- Custom styles for this template -->
+  <link href="css/grayscale.css" rel="stylesheet">
+</head>
+<body id="page-top">
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand js-scroll-trigger" href="#page-top">BlockChi Ethereum</a>
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        Menu
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="#introduction">Introduction</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="#use-cases">Use cases</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="#technology">Technology</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="#contacts">Contacts</a>
+          </li>
+        </ul>
       </div>
-      <div class="row">
-        <div class="col-md-12">
-          <p>
-            <a href="https://github.com/BoyanBorislavovYankov/BlockChi-Ethereum-Blockchain-Payload-Tools">Visit the GitHub repository of BlockChi Ethereum - Blockchain Payload Tools</a>
-          </p>
-        </div>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <header class="masthead">
+    <div class="container d-flex h-100 align-items-center">
+      <div class="mx-auto text-center">
+        <img class="w-75 mw-100" src="img/blockchi-logo-transparent.png" alt="" title="" />
+        <h2 class="text-white-50 mx-auto mt-2 mb-5">Easy way of storing and retrieving data on blockchain.</h2>
+        <a href="#introduction" class="btn btn-primary js-scroll-trigger">Get Started</a>
       </div>
+    </div>
+  </header>
+
+  <!-- Introduction Section -->
+  <section id="introduction" class="about-section text-center">
+    <div class="container">
       <div class="row">
-        <div class="col-md-12">
-          <h2>
-            Introduction
-          </h2>
+        <div class="col-lg-8 mx-auto">
+          <h2 class="text-white mb-4">Blockchi creates an easy way of storing and retrieving data on blockchain</h2>
         </div>
-        <div class="col-md-12">
-          <p>
-            <strong>Blockchi creates an easy way of storing and retrieving data on blockchain</strong>
-          </p>
-          <ul>
+        <div class="col-lg-10 mx-auto">
+          <ul class="text-white-50 text-left">
             <li>that allows parties to <strong>author, publish, extend and access</strong> data records in a </strong>decentralized, immutable and secure</strong> manner,</li>
             <li>supports <strong>complex data types</strong>, such as structured data and media,</li>
             <li>supports <strong>metadata</strong> to allow anonymous, identified or trusted publishing and other features.</li>
           </ul>
         </div>
-        <div class="col-md-12">
-          <p>
+        <div class="col-lg-10 mx-auto">
+          <p class="text-white-50">
             BlockChi Ethereum (Blockchain Payload Tools) is an Ethreum implementation of technology for storing and retrieving data on blockchain. It allows parties to author, to publish, to extend and to access data records. The data is presented as a JSON object, contained in the payload of a blockchain transaction.
           </p>
         </div>
       </div>
+      <img src="img/storage.png" class="img-fluid" alt="">
+    </div>
+  </section>
+
+  <!-- Use Cases Section -->
+  <section id="use-cases" class="use-cases-section bg-light">
+    <div class="container">
+
       <div class="row">
-        <div class="col-md-12">
-          <h2>
-            Use cases
-          </h2>
+        <div class="col-md-10 col-lg-8 mx-auto text-center">
+          <i class="fas fa-user-friends fa-2x mb-2"></i>
+          <h2 class="mb-5">Use cases</h2>
         </div>
-        <div class="col-md-6">
-          <ul>
-            <li>Creation of DAPPs (decentralized blockchain apps): registers, catalogues, etc.</li>
-            <li>Publishing: articles, books, announcements, feeds, official documents, etc.</li>
-            <li>Publishing media content</li>
-            <li>Running applications from the blockchain</li>
-          </ul>
-        </div>
-        <div class="col-md-6">
+      </div>
+
+      <div class="row align-items-center no-gutters mb-4 mb-lg-5">
+        <div class="col-xl-8 col-lg-7">
           <div class="embed-responsive embed-responsive-16by9">
             <iframe src="https://www.youtube.com/embed/tPFvPOiErd8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
           </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="col-md-12">
-          <h2>
-            Technology
-          </h2>
-        </div>
-        <div class="col-md-12">
-          <h3>Layered model of BlockChi:</h3>
-          <img class="mw-100" src="images/blockchi-diagram.jpg" alt="Blockchi Diagram" />
-          <br /><br />
-        </div>
-        <div class="col-md-6">
-          <h3>Writing data to blockchain is done by:</h3>
-          <p>
-            Preparing the data as a JSON object, according to the provided schema, converting the JSON object to HEX and sending the transaction from the wallet with the HEX data as payload.
-          </p>
-        </div>
-        <div class="col-md-6">
-          <h3>Reading data from blockchain is done by:</h3>
-          <p>
-            Reading the tranasction and getting the payload, decoding the payload from HEX to JSON, parsing and displaying the data from the JSON.
-          </p>
+        <div class="col-xl-4 col-lg-5">
+          <div class="featured-text text-center text-lg-left">
+            <ul class="text-black-50 mb-0">
+              <li>Creation of DAPPs (decentralized blockchain apps): registers, catalogues, etc.</li>
+              <li>Publishing: articles, books, announcements, feeds, official documents, etc.</li>
+              <li>Publishing media content</li>
+              <li>Running applications from the blockchain</li>
+            </ul>
+          </div>
         </div>
       </div>
-      <div class="row">
-        <div class="col-md-12">
-          <h2>
-            Get in touch
-          </h2>
-        </div>
-        <div class="col-md-12">
-          <p>
-            <a class="btn btn-primary" href="https://www.linkedin.com/in/boyan-yankov-0a7b2762/">Connect on LinkedIn</a>
-          </p>
-        </div>
-      </div>
+
     </div>
-  </body>
+  </section>
+
+  <!-- Technology Section -->
+  <section id="technology" class="technology-section bg-light">
+    <div class="container">
+
+      <div class="row">
+        <div class="col-md-10 col-lg-8 mx-auto text-center">
+          <i class="fas fa-server fa-2x mb-2"></i>
+          <h2 class="mb-5">Technology</h2>
+        </div>
+      </div>
+
+      <div class="row align-items-center no-gutters mb-4 mb-lg-5">
+        <div class="col-xl-12 col-lg-12">
+          <h4>Layered model of BlockChi:</h4>
+          <img class="img-fluid mb-3 mb-lg-0" src="img/blockchi-diagram.jpg" alt="">
+        </div>
+      </div>
+
+      <div class="row justify-content-center no-gutters mb-5 mb-lg-0">
+        <div class="col-lg-6">
+          <img class="img-fluid" src="img/bg-signup.jpg" alt="">
+        </div>
+        <div class="col-lg-6">
+          <div class="bg-black text-center h-100 project">
+            <div class="d-flex h-100">
+              <div class="project-text w-100 my-auto text-center text-lg-left">
+                <h4 class="text-white">Writing data to blockchain is done by:</h4>
+                <p class="mb-0 text-white-50">Preparing the data as a JSON object, according to the provided schema, converting the JSON object to HEX and sending the transaction from the wallet with the HEX data as payload.</p>
+                <hr class="d-none d-lg-block mb-0 ml-0">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row justify-content-center no-gutters">
+        <div class="col-lg-6">
+          <img class="img-fluid" src="img/bg-signup.jpg" alt="">
+        </div>
+        <div class="col-lg-6 order-lg-first">
+          <div class="bg-black text-center h-100 project">
+            <div class="d-flex h-100">
+              <div class="project-text w-100 my-auto text-center text-lg-right">
+                <h4 class="text-white">Reading data from blockchain is done by:</h4>
+                <p class="mb-0 text-white-50">Reading the tranasction and getting the payload, decoding the payload from HEX to JSON, parsing and displaying the data from the JSON.</p>
+                <hr class="d-none d-lg-block mb-0 mr-0">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contacts" class="contact-section bg-black">
+    <div class="container">
+
+      <div class="row">
+        <div class="col-md-10 col-lg-8 mx-auto text-center">
+          <i class="far fa-paper-plane fa-2x mb-2 text-white"></i>
+          <h2 class="text-white mb-5">Get in touch</h2>
+        </div>
+      </div>
+      
+      <div class="row">
+
+        <div class="col-md-4 mb-3 mb-md-0">
+          <div class="card py-4 h-100">
+            <div class="card-body text-center">
+              <i class="fab fa-github text-primary mb-2"></i>
+              <h4 class="text-uppercase m-0">Github</h4>
+              <hr class="my-4">
+              <div class="small text-black-50">
+                <a href="https://github.com/BoyanBorislavovYankov/BlockChi-Ethereum-Blockchain-Payload-Tools">Download or clone on GitHub</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4 mb-3 mb-md-0">
+          <div class="card py-4 h-100">
+            <div class="card-body text-center">
+              <i class="fas fa-mobile-alt text-primary mb-2"></i>
+              <h4 class="text-uppercase m-0">Community</h4>
+              <hr class="my-4">
+              <div class="small text-black-50">
+                <a href="https://www.facebook.com/groups/469221573283979/">Join our Facebook group</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4 mb-3 mb-md-0">
+          <div class="card py-4 h-100">
+            <div class="card-body text-center">
+              <i class="far fa-address-card text-primary mb-2"></i>
+              <h4 class="text-uppercase m-0">Get in touch</h4>
+              <hr class="my-4">
+              <div class="small text-black-50">
+                <a href="https://www.linkedin.com/in/boyan-yankov-0a7b2762/">Connect on LinkedIn</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-black small text-center text-white-50">
+    <div class="container">
+      Copyright &copy; BlockChi 2019
+    </div>
+  </footer>
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <!-- Plugin JavaScript -->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+  <!-- Custom scripts for this template -->
+  <script src="js/grayscale.min.js"></script>
+</body>
 </html>
