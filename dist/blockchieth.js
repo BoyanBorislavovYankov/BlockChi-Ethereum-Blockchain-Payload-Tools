@@ -45959,5 +45959,13 @@ BlockChiEth.prototype.escapeHtmlEntities = function (rawStr) {
   
   return encodedStr;
 };
+
+BlockChiEth.prototype.splitStringInChunks = function(str, size){
+  if (str == null) return [];
+  str = String(str);
+  size = ~~size;
+  
+  return size > 0 ? str.match(new RegExp('.{1,' + size + '}', 'g')) : [str];
+}
 },{"ajv":155,"web3":236}]},{},[287])(287)
 });

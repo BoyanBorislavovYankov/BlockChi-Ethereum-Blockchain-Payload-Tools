@@ -13,11 +13,20 @@
     <div class="row">
       <div class="col-sm-12">        
         <h1>BlockChi - JSON Editor Demo</h1>
-        
+      </div>
+      
+      <div class="col-sm-12">  
         <div id="editor_holder"></div>
+      </div>
+      
+      <div class="col-sm-12">  
+        <label>Split data: <label>
+        <select name="split_data" id="split_data">
+          <option value="0" selected="selected">Do not split</option>
+          <option value="64">Split into 64 kb parts</option>
+        <select>
         
         <button id="submit">Generate transaction payload</button>
-        <br /><br />
       </div>
     </div>
 
@@ -25,31 +34,26 @@
       <div class="col-sm-12">
         <h2>Result</h2>
       </div>
-    </div>
-    
-    <div class="row">  
+      
       <div class="col-sm-12">
         <div id="validation_result"></div>
       </div>
-    </div>
-    
-    <div class="row">
+      
       <div class="col-lg-6">
         <label for="output_text">Output JSON (human readable):</label>
       </div>
-      
       <div class="col-lg-6">
         <textarea name="output_text" id="output_text" cols="60" rows="6" disabled="disabled"></textarea>
       </div>
-    </div>
       
-    <div class="row">
       <div class="col-lg-6">
         <label for="output_hex">Output HEX (for writing to Ethereum blockchain):</label>
       </div>
-      
       <div class="col-lg-6">
         <textarea name="output_hex" id="output_hex" cols="60" rows="6" disabled="disabled"></textarea>
+      </div>
+      
+      <div class="col-lg-12" id="split_data_result">
       </div>
     </div>
 
@@ -65,6 +69,7 @@
       });
 
       document.getElementById("submit").addEventListener("click",function() {
+      
         const blockChiEth = new BlockChiEth();
         
         var outputValueObject = editor.getValue();
@@ -86,8 +91,37 @@
         //display result
         document.getElementById("validation_result").innerHTML = errorString;
         document.getElementById("output_text").innerHTML = outputValueText;
-        document.getElementById("output_hex").innerHTML = outputValueHex;    
+        document.getElementById("output_hex").innerHTML = outputValueHex;
+        
+        //split data into chunks
+        var splitDataElement = document.getElementById('split_data');
+        var splitDataValue = splitDataElement.options[splitDataElement.selectedIndex].value;
+        var splitDataResultElement = document.getElementById("split_data_result");
+        splitDataResultElement.innerHTML = '';
+        
+        if (splitDataValue > 0){
+          //split hex value
+          
+          var outputValueHexChunks = blockChiEth.splitStringInChunks(outputValueHex, splitDataValue * 1024);
+          
+          //display results
+          
+          splitDataResultElement.innerHTML += '<h2>Result - split in '+splitDataValue+' kb chunks</h2>';
+          splitDataResultElement.innerHTML += '<p>Write all data chunks as separete transactions in the correct order, starting from the first. Read all transactions at once by passing multiple arguments to the reader.</p>';
+          
+          outputValueHexChunks.forEach(function(outputValueHexChunk){
+            if (!outputValueHexChunk.startsWith('0x')){
+              //fix string start to indicate this is hex
+              outputValueHexChunk = '0x'+outputValueHexChunk;
+            }
+            
+            splitDataResultElement.innerHTML += '<textarea name="output_hex" id="output_hex" cols="60" rows="6" disabled="disabled">'+outputValueHexChunk+'</textarea><br />';
+          });
+            
+        }
       });
+      
+      
     </script>
   </div>
 </body>
