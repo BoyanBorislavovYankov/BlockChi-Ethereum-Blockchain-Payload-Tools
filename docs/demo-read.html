@@ -49,17 +49,22 @@
 
         //get form data
         let apiUrl = document.getElementById('api_url').value;
-        let transactionHash = document.getElementById('transaction_hash').value;
-        
-        const blockChiEth = new BlockChiEth(apiUrl);
-        
-        let transactionPayload = blockChiEth.getTransactionPayload(transactionHash);
-        
-        console.log(transactionPayload);
-        
-        document.getElementById('transaction_data').innerHTML = blockChiEth.escapeHtmlEntities(transactionPayload.payloadAscii);        
+        let transactionHashRaw = document.getElementById('transaction_hash').value;
+		let transactionHashArr = transactionHashRaw.split(',');
 
-        let transactionPayloadObject = blockChiEth.textToJson(transactionPayload.payloadAscii);
+		const blockChiEth = new BlockChiEth(apiUrl);
+
+		//loop trough all transaction hashes to get all data
+		let transactionPayloadAscii = '';
+		transactionHashArr.forEach(function(transactionHash){
+			let transactionPayloadObject = blockChiEth.getTransactionPayload(transactionHash);
+			transactionPayloadAscii += transactionPayloadObject.payloadAscii;
+		});
+		console.log(transactionPayloadAscii);
+        
+        document.getElementById('transaction_data').innerHTML = blockChiEth.escapeHtmlEntities(transactionPayloadAscii);        
+
+        let transactionPayloadObject = blockChiEth.textToJson(transactionPayloadAscii);
         
         console.log(transactionPayloadObject);
 
@@ -69,13 +74,15 @@
         resultHtml += '<strong>Description:</strong> '+transactionPayloadObject.result.description+'; ';
         resultHtml += '<strong>Author:</strong> '+transactionPayloadObject.result.author+'; ';
         resultHtml += '<strong>Network:</strong> '+apiUrl+'; ';
-        resultHtml += '<strong>Transaction:</strong> '+transactionHash+'; ';
+        resultHtml += '<strong>Transaction:</strong> '+transactionHashRaw+'; ';
         resultHtml += '</p>';
         
         for (let itemNumber = 0; itemNumber < transactionPayloadObject.result.items.length; itemNumber++) {
           let item = transactionPayloadObject.result.items[itemNumber];
               
-          resultHtml += '<h2>'+item.title+'</h2>';
+          if (item.title !== undefined && item.title != ''){
+              resultHtml += '<h2>'+item.title+'</h2>';
+          }
   
           if (item.data !== undefined && item.data != ''){
             resultHtml += '<p>'+item.data+'</p>';
