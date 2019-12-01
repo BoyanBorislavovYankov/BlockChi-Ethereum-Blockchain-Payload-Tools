@@ -66,15 +66,15 @@ const blockChiEth = new BlockChiEth(apiUrl);
 Examples:
 ----------------------------
 
-For browser - open one of the files:
+For browser - demo files are found in the docs folder, open one following links to test now:
  
 JSON editor with converter, for preparing data to be written on the blockchain: 
 
-demo-editor.html
+https://boyanborislavovyankov.github.io/BlockChi-Ethereum-Blockchain-Payload-Tools/demo-editor.html
 
-Demo of reader: 
+Demo of content reader : 
 
-demo-read.html
+https://boyanborislavovyankov.github.io/BlockChi-Ethereum-Blockchain-Payload-Tools/demo-read.html
 
 
 For node.js - install and run one of the demo files:
